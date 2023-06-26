@@ -3,6 +3,7 @@ from pymatgen.core.structure import Molecule
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
 import numpy as np
+from networkx.algorithms.graph_hashing import weisfeiler_lehman_graph_hash
 
 
 def get_data_wrapper(launchpad_file, query, collections_name='quacc_results0'):
@@ -15,7 +16,17 @@ def get_data_wrapper(launchpad_file, query, collections_name='quacc_results0'):
 def compare_mols(Molecule1, Molecule2):
     molgraph1 = MoleculeGraph.with_local_env_strategy(Molecule1, OpenBabelNN())
     molgraph2 = MoleculeGraph.with_local_env_strategy(Molecule2, OpenBabelNN())
-    return molgraph1.isomorphic_to(molgraph2)
+
+    graph1 = molgraph1.graph.to_undirected()
+    graph2 = molgraph2.graph.to_undirected()
+
+    for idx in graph1.nodes():
+        graph1.nodes()[idx]["specie"] = graph1.nodes()[idx]["specie"] + str(idx)
+    for idx in graph2.nodes():
+        graph2.nodes()[idx]["specie"] = graph2.nodes()[idx]["specie"] + str(idx)
+    graph1_hash = weisfeiler_lehman_graph_hash(graph1, node_attr='specie')
+    graph2_hash = weisfeiler_lehman_graph_hash(graph2, node_attr='specie')
+    return graph1_hash == graph2_hash
 
 
 def clean_calcs(docs):
@@ -156,4 +167,3 @@ def get_data1(indices, launchpad_file, class_tag="sella_ts_prod_jun21_[10]", job
     if print_level:
         np.savetxt('all_analysis_data' + str(ts_type) + '-' + str(job_type) + '.txt', all_analysis_data, fmt='%.8f')
     return doc_dict, all_analysis_data, all_mols
-
