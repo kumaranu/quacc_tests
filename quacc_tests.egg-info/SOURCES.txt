@@ -1,0 +1,9 @@
+README.md
+setup.cfg
+setup.py
+quacc_tests.egg-info/PKG-INFO
+quacc_tests.egg-info/SOURCES.txt
+quacc_tests.egg-info/dependency_links.txt
+quacc_tests.egg-info/entry_points.txt
+quacc_tests.egg-info/top_level.txt
+tests/test_main.py

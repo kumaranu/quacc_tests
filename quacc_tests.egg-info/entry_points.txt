@@ -1,0 +1,2 @@
+[console_scripts]
+quacc_tests = quacc_tests.main:main
