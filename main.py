@@ -53,6 +53,7 @@ def perform_comparisons(master_dict, good_indices, imag_freq_threshold, delta_g_
     diff_imag_freq_nums = 0
     diff_delta_g_f_nums = 0
     diff_delta_g_r_nums = 0
+    set_succeed0, set_succeed1 = set(), set()
 
     for index in good_indices:
         check0f0r = compare_mols(master_dict[0]["firc"][index]["mol"], master_dict[0]["rirc"][index]["mol"])
@@ -64,8 +65,10 @@ def perform_comparisons(master_dict, good_indices, imag_freq_threshold, delta_g_
 
         if not check0f0r:
             iso_checks[0] += 1
+            set_succeed0.add(index)
         if not check1f1r:
             iso_checks[1] += 1
+            set_succeed1.add(index)
 
         if not check0f0r and not check1f1r:
             if check0f1f and check0r1r:
@@ -126,7 +129,7 @@ def perform_comparisons(master_dict, good_indices, imag_freq_threshold, delta_g_
                 if abs(delta_g0_r - delta_g1_r) > delta_g_threshold:
                     diff_delta_g_r_nums += 1
 
-    return same_ts_indices, iso_checks, iter_comparison, same_ts, diff_imag_freq_nums, diff_delta_g_f_nums,\
+    return same_ts_indices, iso_checks, set_succeed0, set_succeed1, iter_comparison, same_ts, diff_imag_freq_nums, diff_delta_g_f_nums,\
         diff_delta_g_r_nums
 
 
@@ -144,7 +147,7 @@ def main():
     master_dict = retrieve_data(lp_file, tag, indices)
     good_indices = check_present_indices(master_dict, indices)
 
-    same_ts_indices, iso_checks, iter_comparison, same_ts, diff_imag_freq_nums, diff_delta_g_f_nums,\
+    same_ts_indices, iso_checks, set_succeed0, set_succeed1, iter_comparison, same_ts, diff_imag_freq_nums, diff_delta_g_f_nums,\
         diff_delta_g_r_nums = perform_comparisons(master_dict, good_indices, imag_freq_threshold, delta_g_threshold)
 
     # print("Same TS Indices: ", same_ts_indices)
@@ -154,7 +157,14 @@ def main():
     print("Different Imaginary Frequency Numbers: ", diff_imag_freq_nums)
     print("Different DeltaG (forward) Numbers: ", diff_delta_g_f_nums)
     print("Different DeltaG (reverse) Numbers: ", diff_delta_g_r_nums)
-
+    failed_ts_indices0 = set(indices)-set_succeed0
+    failed_ts_indices1 = set(indices)-set_succeed1
+    failed_ts_indices1
+    print('Number of failed TS for type0:', len(failed_ts_indices0))
+    print('Number of failed TS for type1:', len(failed_ts_indices1))
+    print('Did not find transition state for type 0 (with custom hessian):', failed_ts_indices0)
+    print('Did not find transition state for type 1 (without custom hessian):', failed_ts_indices1)
+    print('Indices that failed to find TS in both ts_types:', failed_ts_indices1.intersection(failed_ts_indices0))
 
 if __name__ == "__main__":
     main()
