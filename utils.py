@@ -26,18 +26,67 @@ def get_data_wrapper(launchpad_file, query, collections_name='quacc_results0'):
     return docs
 
 
-def compare_mols(molecule1, molecule2):
-    molgraph1 = MoleculeGraph.with_local_env_strategy(molecule1, OpenBabelNN())
-    molgraph2 = MoleculeGraph.with_local_env_strategy(molecule2, OpenBabelNN())
-    graph1 = molgraph1.graph.to_undirected()
-    graph2 = molgraph2.graph.to_undirected()
-    for idx in graph1.nodes():
-        graph1.nodes()[idx]["specie"] = graph1.nodes()[idx]["specie"] + str(idx)
-    for idx in graph2.nodes():
-        graph2.nodes()[idx]["specie"] = graph2.nodes()[idx]["specie"] + str(idx)
-    graph1_hash = weisfeiler_lehman_graph_hash(graph1, node_attr='specie')
-    graph2_hash = weisfeiler_lehman_graph_hash(graph2, node_attr='specie')
-    return graph1_hash == graph2_hash
+def compare_mols(molecule_1, molecule_2) -> bool:
+    """
+    Compare two molecules based on their graph structure.
+
+    Args:
+        molecule_1 (pymatgen.core.structure.Molecule): First molecule.
+        molecule_2 (pymatgen.core.structure.Molecule): Second molecule.
+
+    Returns:
+        bool: True if the molecules have the same graph structure, False otherwise.
+    """
+    molgraph_1 = create_molecule_graph(molecule_1)
+    molgraph_2 = create_molecule_graph(molecule_2)
+
+    graph_1 = molgraph_1.graph.to_undirected()
+    graph_2 = molgraph_2.graph.to_undirected()
+
+    add_specie_suffix(graph_1)
+    add_specie_suffix(graph_2)
+
+    graph_1_hash = get_graph_hash(graph_1)
+    graph_2_hash = get_graph_hash(graph_2)
+
+    return graph_1_hash == graph_2_hash
+
+
+def create_molecule_graph(molecule):
+    """
+    Create a molecule graph using the OpenBabelNN strategy.
+
+    Args:
+        molecule (pymatgen.core.structure.Molecule): The molecule.
+
+    Returns:
+        pymatgen.analysis.graphs.MoleculeGraph: The molecule graph.
+    """
+    return MoleculeGraph.with_local_env_strategy(molecule, OpenBabelNN())
+
+
+def add_specie_suffix(graph):
+    """
+    Add a suffix to each node's 'specie' attribute in the graph.
+
+    Args:
+        graph (networkx.Graph): The graph.
+    """
+    for idx in graph.nodes():
+        graph.nodes()[idx]["specie"] = graph.nodes()[idx]["specie"] + str(idx)
+
+
+def get_graph_hash(graph):
+    """
+    Get the hash of the graph using the Weisfeiler-Lehman algorithm.
+
+    Args:
+        graph (networkx.Graph): The graph.
+
+    Returns:
+        str: The graph hash.
+    """
+    return weisfeiler_lehman_graph_hash(graph, node_attr='specie')
 
 
 def get_data(indices,
@@ -60,7 +109,6 @@ def get_data(indices,
     for doc in docs:
         output = doc['output']
         molecule_dict = {}
-        mol = None
 
         if job_type == 'TS':
             trajectory = output.get('ts', {}).get('trajectory', [])
@@ -70,8 +118,6 @@ def get_data(indices,
             trajectory = output.get('opt', {}).get('trajectory', [])
             if trajectory and isinstance(trajectory, list):
                 molecule_dict = trajectory[-1].get('molecule', {})
-
-        mol = Molecule.from_dict(molecule_dict)
 
         n_iters = len(output.get('ts', {}).get('trajectory_results', []))
         energy = output.get('thermo', {}).get('thermo', {}).get('results', {}).get('energy', 0.0)
@@ -90,7 +136,7 @@ def get_data(indices,
             "zpe": zpe,
             "imag_vib_freq": np.min(imag_vib_freqs) if isinstance(imag_vib_freqs, list) and len(imag_vib_freqs) else 0,
             "molecule_dict": molecule_dict,
-            "mol": mol
+            "mol": Molecule.from_dict(molecule_dict)
         }
 
     all_analysis_data = np.zeros((len(indices), 8))
@@ -116,89 +162,6 @@ def get_data(indices,
         if not os.path.exists(log_dir):
             os.mkdir(log_dir)
         np.savetxt(log_dir + '/all_analysis_data' + str(ts_type) + '-' + str(job_type) + '.txt',
-                   all_analysis_data,
-                   fmt='%.8f')
-
-    return doc_dict, all_analysis_data, all_mols
-
-
-def get_data1(indices, launchpad_file, class_tag="sella_ts_prod_jun21_[10]", job_type="TS", ts_type=0, print_level=1):
-    all_mols = []
-    doc_dict = {}
-
-    query = {
-        "metadata.fw_spec.tags.class": {"$regex": class_tag},
-        "metadata.tag": {"$in": [job_type + str(ts_type) + "-" + f'{index:03}' for index in indices]}
-    }
-
-    docs = get_data_wrapper(launchpad_file, query, collections_name='quacc_results0')
-
-    for ii, doc in enumerate(docs):
-        n_iters = 0
-        energy = 0.0
-        enthalpy = 0.0
-        entropy = 0.0
-        gibbs_free_energy = 0.0
-        zpe = 0.0
-        imag_vib_freqs = 0.0
-        molecule_dict = {}
-        mol = None
-        geom_index = doc['metadata']['tag']
-        output = doc['output']
-        if job_type == 'TS':
-            n_iters = len(output['ts']['trajectory_results'])
-            energy = output['thermo']['thermo']['results']['energy']
-            enthalpy = output['thermo']['thermo']['results']['enthalpy']
-            entropy = output['thermo']['thermo']['results']['entropy']
-            gibbs_free_energy = output['thermo']['thermo']['results']['gibbs_energy']
-            zpe = output['thermo']['thermo']['results']['zpe']
-            imag_vib_freqs = output['thermo']['vib']['results']['imag_vib_freqs']
-            molecule_dict = output['ts']['trajectory'][-1]['molecule']
-            mol = Molecule.from_dict(molecule_dict)
-        elif (job_type == 'irc-forward') or (job_type == 'irc-reverse'):
-            n_iters = 0
-            energy = output['irc']['thermo']['thermo']['results']['energy']
-            enthalpy = output['irc']['thermo']['thermo']['results']['enthalpy']
-            entropy = output['irc']['thermo']['thermo']['results']['entropy']
-            gibbs_free_energy = output['irc']['thermo']['thermo']['results']['gibbs_energy']
-            zpe = output['irc']['thermo']['thermo']['results']['zpe']
-            imag_vib_freqs = output['irc']['thermo']['vib']['results']['imag_vib_freqs']
-            molecule_dict = output['opt']['trajectory'][-1]['molecule']
-            mol = Molecule.from_dict(molecule_dict)
-
-        doc_dict[int(geom_index.split('-')[-1])] = {
-            "n_iters": n_iters,
-            "energy": energy,
-            "enthalpy": enthalpy,
-            "entropy": entropy,
-            "gibbs_free_energy": gibbs_free_energy,
-            "zpe": zpe,
-            "imag_vib_freq": np.min(imag_vib_freqs) if len(imag_vib_freqs) else 0,
-            "molecule_dict": molecule_dict,
-            "mol": mol
-        }
-
-    all_analysis_data = np.zeros((len(indices), 8))
-
-    for index in indices:
-        if index in doc_dict:
-            data = doc_dict[index]
-            all_analysis_data[index, :] = [
-                index,
-                data["n_iters"],
-                data["energy"],
-                data["enthalpy"],
-                data["entropy"],
-                data["gibbs_free_energy"],
-                data["zpe"],
-                data["imag_vib_freq"]
-            ]
-            all_mols.append(data["mol"])
-        else:
-            all_analysis_data[index, 0] = index
-
-    if print_level:
-        np.savetxt('all_analysis_data' + str(ts_type) + '-' + str(job_type) + '.txt',
                    all_analysis_data,
                    fmt='%.8f')
 
