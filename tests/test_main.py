@@ -2,6 +2,7 @@ import os
 import pytest
 from utils import get_data_wrapper
 from pymatgen.core.structure import Molecule
+import networkx as nx
 from utils import (
     compare_mols,
     create_molecule_graph,
@@ -99,7 +100,7 @@ def test_compare_mols_same_molecule(sample_molecule):
 
 
 def test_compare_mols_different_molecules(sample_molecule):
-    molecule_dict = {
+    different_molecule_dict = {
         "@module": "pymatgen.core.structure",
         "@class": "Molecule",
         "charge": 0,
@@ -190,27 +191,66 @@ def test_compare_mols_different_molecules(sample_molecule):
              "species": [
                  {"element": "H",
                   "occu": 1}
-             ], "xyz" : [ -1.3727435892674373, -0.014787771025894758, -0.010736089150883272 ], "properties" : { "magmom" : 0.0, "masses" : 1.00782503223 } }, { "name" : "H", "species" : [ { "element" : "H", "occu" : 1 } ], "xyz" : [ -2.6584897496506974, -1.10452433010817, 1.807971737509261 ], "properties" : { "magmom" : 0.0, "masses" : 1.00782503223 } }, { "name" : "H", "species" : [ { "element" : "H", "occu" : 1 } ], "xyz" : [ -1.0729158458762569, -1.83035989953293, 1.596564638848291 ], "properties" : { "magmom" : 0.0, "masses" : 1.00782503223 } }, { "name" : "H", "species" : [ { "element" : "H", "occu" : 1 } ], "xyz" : [ -1.7195893134418407, 0.22864921166459407, 3.786067660787342 ], "properties" : { "magmom" : 0.0, "masses" : 1.00782503223 } }, { "name" : "H", "species" : [ { "element" : "H", "occu" : 1 } ], "xyz" : [ -1.6466710914126845, -1.5252109960394395, 4.0246253756221515 ], "properties" : { "magmom" : 0.0, "masses" : 1.00782503223 } }, { "name" : "H", "species" : [ { "element" : "H", "occu" : 1 } ], "xyz" : [ -0.18647837200834205, -0.6313248899547064, 3.5808166274984505 ], "properties" : { "magmom" : 0.0, "masses" : 1.00782503223 } } ] }
-    # Test case where two different molecules are compared
-    # Create a different molecule with the same composition
-    coords = [(0, 0, 0), (1, 0, 0), (0, 1, 0)]
-    elements = ["O", "H", "H"]
-    different_molecule = Molecule(elements, coords)
-
+             ],
+             "xyz": [-1.3727435892674373, -0.014787771025894758, -0.010736089150883272],
+             "properties": {"magmom": 0.0,
+                            "masses": 1.00782503223}
+             },
+            {"name": "H",
+             "species": [
+                 {"element": "H",
+                  "occu": 1}
+             ],
+             "xyz": [-2.6584897496506974, -1.10452433010817, 1.807971737509261],
+             "properties": {"magmom": 0.0,
+                            "masses": 1.00782503223}
+             },
+            {"name": "H",
+             "species": [
+                 {"element": "H",
+                  "occu": 1}
+             ],
+             "xyz": [-1.0729158458762569, -1.83035989953293, 1.596564638848291],
+             "properties": {"magmom": 0.0,
+                            "masses": 1.00782503223}
+             },
+            {"name": "H",
+             "species": [{"element": "H",
+                          "occu": 1}
+                         ],
+             "xyz": [-1.7195893134418407, 0.22864921166459407, 3.786067660787342],
+             "properties": {"magmom": 0.0,
+                            "masses": 1.00782503223}
+             },
+            {"name": "H",
+             "species": [{"element": "H",
+                          "occu": 1}
+                         ],
+             "xyz": [-1.6466710914126845, -1.5252109960394395, 4.0246253756221515],
+             "properties": {"magmom": 0.0,
+                            "masses": 1.00782503223}
+             },
+            {"name": "H",
+             "species": [{"element": "H",
+                          "occu": 1}
+                         ],
+             "xyz": [-0.18647837200834205, -0.6313248899547064, 3.5808166274984505],
+             "properties": {"magmom": 0.0,
+                            "masses" : 1.00782503223}
+             }
+        ]
+    }
+    different_molecule = Molecule.from_dict(different_molecule_dict)
     assert compare_mols(sample_molecule, different_molecule) is True
 
 
 def test_create_molecule_graph(sample_molecule):
     # Test creation of molecule graph
     molgraph = create_molecule_graph(sample_molecule)
-
     assert molgraph is not None
 
 
 def test_add_specie_suffix():
-    # Test adding specie suffix to a graph
-    import networkx as nx
-
     # Create a sample graph
     graph = nx.Graph()
     graph.add_node(0, specie="H")
@@ -225,9 +265,6 @@ def test_add_specie_suffix():
 
 
 def test_get_graph_hash():
-    # Test getting graph hash
-    import networkx as nx
-
     # Create a sample graph
     graph = nx.Graph()
     graph.add_node(0, specie="H")
