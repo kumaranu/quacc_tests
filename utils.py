@@ -1,3 +1,4 @@
+import os.path
 
 import numpy as np
 from maggma.stores import MongoStore
@@ -39,7 +40,13 @@ def compare_mols(molecule1, molecule2):
     return graph1_hash == graph2_hash
 
 
-def get_data(indices, launchpad_file, class_tag="sella_ts_prod_jun21_[10]", job_type="TS", ts_type=0, print_level=1):
+def get_data(indices,
+             launchpad_file,
+             class_tag="sella_ts_prod_jun21_[10]",
+             job_type="TS",
+             ts_type=0,
+             print_level=1,
+             log_dir='logs'):
     all_mols = []
     doc_dict = {}
 
@@ -106,7 +113,9 @@ def get_data(indices, launchpad_file, class_tag="sella_ts_prod_jun21_[10]", job_
             all_analysis_data[index, 0] = index
 
     if print_level:
-        np.savetxt('all_analysis_data' + str(ts_type) + '-' + str(job_type) + '.txt',
+        if not os.path.exists(log_dir):
+            os.mkdir(log_dir)
+        np.savetxt(log_dir + '/all_analysis_data' + str(ts_type) + '-' + str(job_type) + '.txt',
                    all_analysis_data,
                    fmt='%.8f')
 

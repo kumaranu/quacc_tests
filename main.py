@@ -150,6 +150,9 @@ def main():
     same_ts_indices, iso_checks, set_succeed0, set_succeed1, iter_comparison, same_ts, diff_imag_freq_nums, diff_delta_g_f_nums,\
         diff_delta_g_r_nums = perform_comparisons(master_dict, good_indices, imag_freq_threshold, delta_g_threshold)
 
+    failed_ts_indices0 = set(indices)-set_succeed0
+    failed_ts_indices1 = set(indices)-set_succeed1
+    failed_ts_indices1
     # print("Same TS Indices: ", same_ts_indices)
     print("Isomer Check: ", iso_checks)
     print("Iteration Comparison: ", iter_comparison)
@@ -157,9 +160,6 @@ def main():
     print("Different Imaginary Frequency Numbers: ", diff_imag_freq_nums)
     print("Different DeltaG (forward) Numbers: ", diff_delta_g_f_nums)
     print("Different DeltaG (reverse) Numbers: ", diff_delta_g_r_nums)
-    failed_ts_indices0 = set(indices)-set_succeed0
-    failed_ts_indices1 = set(indices)-set_succeed1
-    failed_ts_indices1
     print('Number of failed TS for type0:', len(failed_ts_indices0))
     print('Number of failed TS for type1:', len(failed_ts_indices1))
     print('Did not find transition state for type 0 (with custom hessian):', failed_ts_indices0)
