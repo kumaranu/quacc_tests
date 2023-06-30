@@ -1,6 +1,7 @@
 import os
 import numpy as np
 from utils import compare_mols, get_data
+from typing import List, Dict, Set, Tuple
 
 
 def retrieve_data(lp_file, tag, indices):
@@ -45,15 +46,31 @@ def check_present_indices(master_dict, indices):
     return good_indices
 
 
-def perform_comparisons(master_dict, good_indices, imag_freq_threshold, delta_g_threshold):
-    same_ts_indices = []
-    iso_checks = {0: 0, 1: 0}
-    iter_comparison = {0: 0, 1: 0}
-    same_ts = 0
-    diff_imag_freq_nums = 0
-    diff_delta_g_f_nums = 0
-    diff_delta_g_r_nums = 0
-    set_succeed0, set_succeed1 = set(), set()
+def perform_comparisons(
+        master_dict: Dict[int, Dict[str, List[Dict[str, any]]]],
+        good_indices: List[int],
+        imag_freq_threshold: float,
+        delta_g_threshold: float
+) -> Tuple[
+    List[int],
+    Dict[int, int],
+    Set[int],
+    Set[int],
+    Dict[int, int],
+    int,
+    int,
+    int,
+    int
+]:
+    same_ts_indices: List[int] = []
+    iso_checks: Dict[int, int] = {0: 0, 1: 0}
+    iter_comparison: Dict[int, int] = {0: 0, 1: 0}
+    same_ts: int = 0
+    diff_imag_freq_nums: int = 0
+    diff_delta_g_f_nums: int = 0
+    diff_delta_g_r_nums: int = 0
+    set_succeed0: Set[int] = set()
+    set_succeed1: Set[int] = set()
 
     for index in good_indices:
         check0f0r = compare_mols(master_dict[0]["firc"][index]["mol"], master_dict[0]["rirc"][index]["mol"])
