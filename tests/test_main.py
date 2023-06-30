@@ -1,39 +1,17 @@
+import os
 import pytest
-from main import retrieve_data
+from utils import get_data_wrapper
 
 
-@pytest.fixture
-def mock_get_data(mocker):
-    def mock_return(indices, lp_file, class_tag, ts_type, job_type):
-        # Create a mock dictionary for the returned data
-        data = {
-            "mol": {"mock_data": True},
-            "gibbs_free_energy": 10.0,
-            "n_iters": 5,
-            "imag_vib_freq": [100, 200, 300]
-        }
-        return {index: data for index in indices}
+@pytest.mark.test
+def test_get_data_wrapper():
+    launchpad_file = os.path.join(os.environ["HOME"], "fw_config/my_launchpad.yaml")
+    class_tag = "sella_ts_prod_jun25_[10]"
+    query = {
+        "metadata.fw_spec.tags.class": {"$regex": class_tag},
+        "metadata.tag": 'TS0-000'
+    }
+    docs = get_data_wrapper(launchpad_file, query, collections_name='quacc_results0')
+    # Assertions
+    assert 'ts' in docs[0]['output'].keys()
 
-    # Patch the get_data function with the mock_return function
-    mocker.patch("main.get_data", side_effect=mock_return)
-
-def test_retrieve_data(mock_get_data):
-    lp_file = "test_file.yaml"
-    tag = "test_tag"
-    indices = [0, 1, 2]
-
-    # Call the retrieve_data function
-    result = retrieve_data(lp_file, tag, indices)
-
-    # Check the expected structure of the result
-    assert isinstance(result, dict)
-    assert set(result.keys()) == {0, 1}
-    assert set(result[0].keys()) == {"TS", "firc", "rirc"}
-    assert set(result[1].keys()) == {"TS", "firc", "rirc"}
-
-    # Check the content of the returned data for a specific index
-    assert isinstance(result[0]["TS"][0], dict)
-    assert result[0]["TS"][0]["mol"]["mock_data"] == True
-    assert result[0]["TS"][0]["gibbs_free_energy"] == 10.0
-    assert result[0]["TS"][0]["n_iters"] == 5
-    assert result[0]["TS"][0]["imag_vib_freq"] == [100, 200, 300]

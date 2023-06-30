@@ -27,7 +27,7 @@ def check_present_indices(master_dict, indices):
         for ts_type in [0, 1]:
             for calc_type in ["TS", "firc", "rirc"]:
                 if index not in master_dict[ts_type][calc_type]:
-                    print("index, ts_type, calc_type:", index, ts_type, calc_type)
+                    # print("index, ts_type, calc_type:", index, ts_type, calc_type)
                     if ts_type == 0:
                         set_err_0.add(index)
                         count0 += 1
