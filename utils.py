@@ -159,9 +159,8 @@ def get_data(indices,
             all_analysis_data[index, 0] = index
 
     if print_level:
-        if not os.path.exists(log_dir):
-            os.mkdir(log_dir)
-        np.savetxt(log_dir + '/all_analysis_data' + str(ts_type) + '-' + str(job_type) + '.txt',
+        os.makedirs(log_dir, exist_ok=True)
+        np.savetxt(os.path.join(log_dir, f"all_analysis_data{ts_type}-{job_type}.txt"),
                    all_analysis_data,
                    fmt='%.8f')
 

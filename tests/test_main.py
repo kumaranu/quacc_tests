@@ -1,6 +1,6 @@
 import os
 import pytest
-from utils import get_data_wrapper
+from unittest.mock import patch
 from pymatgen.core.structure import Molecule
 import networkx as nx
 from utils import (
@@ -8,6 +8,8 @@ from utils import (
     create_molecule_graph,
     add_specie_suffix,
     get_graph_hash,
+    get_data,
+    get_data_wrapper
 )
 
 
@@ -276,3 +278,6 @@ def test_get_graph_hash():
 
     # Check if hash is obtained
     assert graph_hash is not None
+
+def test_get_data():
+
