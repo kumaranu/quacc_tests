@@ -1,6 +1,6 @@
 import os
+import numpy as np
 import pytest
-from unittest.mock import patch
 from pymatgen.core.structure import Molecule
 import networkx as nx
 from utils import (
@@ -11,9 +11,14 @@ from utils import (
     get_data,
     get_data_wrapper
 )
+from main import (
+    retrieve_data,
+    check_present_indices,
+    compare_mols,
+    perform_comparisons,
+)
 
 
-@pytest.mark.test
 def test_get_data_wrapper():
     launchpad_file = os.path.join(os.environ["HOME"], "fw_config/my_launchpad.yaml")
     class_tag = "sella_ts_prod_jun25_[10]"
@@ -279,5 +284,47 @@ def test_get_graph_hash():
     # Check if hash is obtained
     assert graph_hash is not None
 
-def test_get_data():
 
+def test_get_data():
+    # Set up the test data
+    indices = [1, 2, 4]
+    launchpad_file = os.path.join(os.environ["HOME"], "fw_config/my_launchpad.yaml")
+    class_tag = "sella_ts_prod_jun25_[10]"
+    job_type = "TS"
+    ts_type = 0
+    print_level = 1
+    log_dir = 'logs'
+
+    # Call the function to get the results
+    doc_dict, all_analysis_data, all_mols = get_data(
+        indices,
+        launchpad_file,
+        class_tag=class_tag,
+        job_type=job_type,
+        ts_type=ts_type,
+        print_level=print_level,
+        log_dir=log_dir
+    )
+
+    print('doc_dict.keys():', doc_dict.keys())
+    # Perform assertions to check the correctness of the results
+    assert len(doc_dict) == len(indices)  # Check the length of the doc_dict
+    #assert all_analysis_data.shape == (len(indices), 8)  # Check the shape of all_analysis_data
+    #assert len(all_mols) == len(indices)  # Check the length of all_mols
+
+
+def test_retrieve_data():
+    lp_file = os.path.join(os.environ["HOME"], "fw_config/my_launchpad.yaml")
+    tag = "sella_ts_prod_jun25_[10]"
+    indices = np.arange(5)
+    master_dict = retrieve_data(lp_file, tag, indices)
+
+    assert isinstance(master_dict, dict)
+    assert len(master_dict) == 2
+
+    for ts_type in master_dict:
+        assert isinstance(master_dict[ts_type], dict)
+        assert len(master_dict[ts_type]) == 3
+
+        for calc_type in master_dict[ts_type]:
+            assert isinstance(master_dict[ts_type][calc_type], dict)

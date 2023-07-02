@@ -156,20 +156,25 @@ def main():
 
     # Modify the indices based on your requirements
     indices = np.arange(265)
+    indices = np.arange(2)
 
     # Modify the threshold values based on your requirements
     imag_freq_threshold = 10
     delta_g_threshold = 0.0285
 
     master_dict = retrieve_data(lp_file, tag, indices)
+    print('master_dict:\n', master_dict)
     good_indices = check_present_indices(master_dict, indices)
 
-    same_ts_indices, iso_checks, set_succeed0, set_succeed1, iter_comparison, same_ts, diff_imag_freq_nums, diff_delta_g_f_nums,\
-        diff_delta_g_r_nums = perform_comparisons(master_dict, good_indices, imag_freq_threshold, delta_g_threshold)
+    same_ts_indices, iso_checks, set_succeed0, set_succeed1, iter_comparison, same_ts, diff_imag_freq_nums,\
+        diff_delta_g_f_nums, diff_delta_g_r_nums = perform_comparisons(master_dict,
+                                                                       good_indices,
+                                                                       imag_freq_threshold,
+                                                                       delta_g_threshold)
 
     failed_ts_indices0 = set(indices)-set_succeed0
     failed_ts_indices1 = set(indices)-set_succeed1
-    failed_ts_indices1
+
     # print("Same TS Indices: ", same_ts_indices)
     print("Isomer Check: ", iso_checks)
     print("Iteration Comparison: ", iter_comparison)

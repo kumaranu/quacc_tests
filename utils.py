@@ -139,8 +139,29 @@ def get_data(indices,
             "mol": Molecule.from_dict(molecule_dict)
         }
 
-    all_analysis_data = np.zeros((len(indices), 8))
+    max_index = max(indices)  # Find the maximum index
+    all_analysis_data = np.zeros((max_index + 1, 8))  # Adjust the size of all_analysis_data
 
+    # all_analysis_data = np.zeros((len(indices), 8))
+    for index in indices:
+        if index in doc_dict:
+            data = doc_dict[index]
+            relative_index = index - min(indices)  # Calculate the relative index
+            all_analysis_data[relative_index, :] = [
+                index,
+                data["n_iters"],
+                data["energy"],
+                data["enthalpy"],
+                data["entropy"],
+                data["gibbs_free_energy"],
+                data["zpe"],
+                data["imag_vib_freq"]
+            ]
+            all_mols.append(data["mol"])
+        else:
+            relative_index = index - min(indices)  # Calculate the relative index
+            all_analysis_data[relative_index, 0] = index
+    '''
     for index in indices:
         if index in doc_dict:
             data = doc_dict[index]
@@ -157,6 +178,7 @@ def get_data(indices,
             all_mols.append(data["mol"])
         else:
             all_analysis_data[index, 0] = index
+    '''
 
     if print_level:
         os.makedirs(log_dir, exist_ok=True)
