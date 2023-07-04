@@ -93,30 +93,17 @@ def perform_comparisons(
         if check1f1r:
             set_failed1.add((index, imag_freq1))
 
-        if not check0f0r and not check1f1r:
-            if check0f1f and check0r1r:
-                set_same_ts.add(index)
-                iter_comparison[0] += master_dict[0]["TS"][index]["n_iters"]
-                iter_comparison[1] += master_dict[1]["TS"][index]["n_iters"]
+        if (not check0f0r and not check1f1r) and ((check0f1f and check0r1r) or (check0f1r and check1f0r)):
+            set_same_ts.add(index)
+            iter_comparison[0] += master_dict[0]["TS"][index]["n_iters"]
+            iter_comparison[1] += master_dict[1]["TS"][index]["n_iters"]
 
-                if abs(imag_freq0 - imag_freq1) > imag_freq_threshold:
-                    set_imag_freqs.add(index)
-                if abs(delta_g0_f - delta_g1_f) > delta_g_threshold:
-                    set_delta_g_f.add(index)
-                if abs(delta_g0_r - delta_g1_r) > delta_g_threshold:
-                    set_delta_g_r.add(index)
-
-            elif check0f1r and check1f0r:
-                set_same_ts.add(index)
-                iter_comparison[0] += master_dict[0]["TS"][index]["n_iters"]
-                iter_comparison[1] += master_dict[1]["TS"][index]["n_iters"]
-
-                if abs(imag_freq0 - imag_freq1) > imag_freq_threshold:
-                    set_imag_freqs.add(index)
-                if abs(delta_g0_f - delta_g1_f) > delta_g_threshold:
-                    set_delta_g_f.add(index)
-                if abs(delta_g0_r - delta_g1_r) > delta_g_threshold:
-                    set_delta_g_r.add(index)
+            if abs(imag_freq0 - imag_freq1) > imag_freq_threshold:
+                set_imag_freqs.add(index)
+            if abs(delta_g0_f - delta_g1_f) > delta_g_threshold:
+                set_delta_g_f.add(index)
+            if abs(delta_g0_r - delta_g1_r) > delta_g_threshold:
+                set_delta_g_r.add(index)
 
     return set_failed0, set_failed1, iter_comparison, set_same_ts, set_imag_freqs, set_delta_g_f, set_delta_g_r
 
