@@ -86,11 +86,11 @@ def perform_comparisons(
 
         delta_g1_f = gibbs_ts1 - gibbs_f1
         delta_g1_r = gibbs_ts1 - gibbs_r1
+        imag_freq0 = np.min(master_dict[0]["TS"][index]["imag_vib_freq"])
+        imag_freq1 = np.min(master_dict[1]["TS"][index]["imag_vib_freq"])
         if check0f0r:
-            imag_freq0 = np.min(master_dict[0]["TS"][index]["imag_vib_freq"])
             set_failed0.add((index, imag_freq0))
         if check1f1r:
-            # imag_freq1 = np.min(master_dict[1]["TS"][index]["imag_vib_freq"])
             set_failed1.add((index, imag_freq1))
 
         if not check0f0r and not check1f1r:
@@ -98,12 +98,9 @@ def perform_comparisons(
                 set_same_ts.add(index)
                 iter_comparison[0] += master_dict[0]["TS"][index]["n_iters"]
                 iter_comparison[1] += master_dict[1]["TS"][index]["n_iters"]
-                imag_freq0 = np.min(master_dict[0]["TS"][index]["imag_vib_freq"])
-                imag_freq1 = np.min(master_dict[1]["TS"][index]["imag_vib_freq"])
 
                 if abs(imag_freq0 - imag_freq1) > imag_freq_threshold:
                     set_imag_freqs.add(index)
-
                 if abs(delta_g0_f - delta_g1_f) > delta_g_threshold:
                     set_delta_g_f.add(index)
                 if abs(delta_g0_r - delta_g1_r) > delta_g_threshold:
@@ -113,25 +110,9 @@ def perform_comparisons(
                 set_same_ts.add(index)
                 iter_comparison[0] += master_dict[0]["TS"][index]["n_iters"]
                 iter_comparison[1] += master_dict[1]["TS"][index]["n_iters"]
-                imag_freq0 = np.min(master_dict[0]["TS"][index]["imag_vib_freq"])
-                imag_freq1 = np.min(master_dict[1]["TS"][index]["imag_vib_freq"])
 
                 if abs(imag_freq0 - imag_freq1) > imag_freq_threshold:
                     set_imag_freqs.add(index)
-
-                gibbs_ts0 = master_dict[0]["TS"][index]["gibbs_free_energy"]
-                gibbs_f0 = master_dict[0]["TS"][index]["gibbs_free_energy"]
-                gibbs_r0 = master_dict[0]["TS"][index]["gibbs_free_energy"]
-
-                gibbs_ts1 = master_dict[1]["TS"][index]["gibbs_free_energy"]
-                gibbs_f1 = master_dict[1]["TS"][index]["gibbs_free_energy"]
-                gibbs_r1 = master_dict[1]["TS"][index]["gibbs_free_energy"]
-                delta_g0_f = gibbs_ts0 - gibbs_f0
-                delta_g0_r = gibbs_ts0 - gibbs_r0
-
-                delta_g1_f = gibbs_ts1 - gibbs_f1
-                delta_g1_r = gibbs_ts1 - gibbs_r1
-
                 if abs(delta_g0_f - delta_g1_f) > delta_g_threshold:
                     set_delta_g_f.add(index)
                 if abs(delta_g0_r - delta_g1_r) > delta_g_threshold:
