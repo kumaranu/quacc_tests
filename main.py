@@ -39,7 +39,7 @@ def check_present_indices(master_dict, indices):
     print(f'Only 1 failed: {len(set_err_1-set_err_0)}: {set_err_1-set_err_0}')
     print(f'Both 0 and 1 failed: {len(set_err_1.intersection(set_err_0))}:'
           f' {set_err_1.intersection(set_err_0)}')
-    print(f'Number of all-good indices: {len(good_indices)}\n')
+    print(f'\nNumber of all-good indices: {len(good_indices)}')
     return good_indices
 
 
@@ -58,15 +58,18 @@ def perform_comparisons(
     Set[int],
     Set[int],
 ]:
-    iter_comparison: Dict[int, int] = {0: 0, 1: 0}
+    iter_comparison1: Dict[int, int] = {0: 0, 1: 0}
+    iter_comparison2: Dict[int, int] = {0: 0, 1: 0}
     set_same_ts: Set[int] = set()
+    set_diff_ts: Set[int] = set()
     set_imag_freqs: Set[int] = set()
     set_delta_g_f: Set[int] = set()
     set_delta_g_r: Set[int] = set()
     set_failed0: Set[int] = set()
     set_failed1: Set[int] = set()
+    general_data: np.ndarray[float] = np.zeros((len(good_indices), 4))
 
-    for index in good_indices:
+    for ii, index in enumerate(good_indices):
         check0f0r = compare_mols(master_dict[0]["firc"][index]["mol"], master_dict[0]["rirc"][index]["mol"])
         check1f1r = compare_mols(master_dict[1]["firc"][index]["mol"], master_dict[1]["rirc"][index]["mol"])
         check0f1f = compare_mols(master_dict[0]["firc"][index]["mol"], master_dict[1]["firc"][index]["mol"])
@@ -77,26 +80,30 @@ def perform_comparisons(
         gibbs_ts0 = master_dict[0]["TS"][index]["gibbs_free_energy"]
         gibbs_f0 = master_dict[0]["firc"][index]["gibbs_free_energy"]
         gibbs_r0 = master_dict[0]["rirc"][index]["gibbs_free_energy"]
+        delta_g0_f = gibbs_ts0 - gibbs_f0
+        delta_g0_r = gibbs_ts0 - gibbs_r0
 
         gibbs_ts1 = master_dict[1]["TS"][index]["gibbs_free_energy"]
         gibbs_f1 = master_dict[1]["firc"][index]["gibbs_free_energy"]
         gibbs_r1 = master_dict[1]["rirc"][index]["gibbs_free_energy"]
-        delta_g0_f = gibbs_ts0 - gibbs_f0
-        delta_g0_r = gibbs_ts0 - gibbs_r0
-
         delta_g1_f = gibbs_ts1 - gibbs_f1
         delta_g1_r = gibbs_ts1 - gibbs_r1
+
         imag_freq0 = np.min(master_dict[0]["TS"][index]["imag_vib_freq"])
         imag_freq1 = np.min(master_dict[1]["TS"][index]["imag_vib_freq"])
+
+        general_data[ii, :] = [index, imag_freq0, delta_g0_f, delta_g0_r]
         if check0f0r:
-            set_failed0.add((index, imag_freq0))
+            set_failed0.add(index)
         if check1f1r:
-            set_failed1.add((index, imag_freq1))
+            set_failed1.add(index)
 
         if (not check0f0r and not check1f1r) and ((check0f1f and check0r1r) or (check0f1r and check1f0r)):
             set_same_ts.add(index)
-            iter_comparison[0] += master_dict[0]["TS"][index]["n_iters"]
-            iter_comparison[1] += master_dict[1]["TS"][index]["n_iters"]
+            iter_comparison1[0] += master_dict[0]["TS"][index]["n_iters1"]
+            iter_comparison1[1] += master_dict[1]["TS"][index]["n_iters1"]
+            iter_comparison2[0] += master_dict[0]["TS"][index]["n_iters2"]
+            iter_comparison2[1] += master_dict[1]["TS"][index]["n_iters2"]
 
             if abs(imag_freq0 - imag_freq1) > imag_freq_threshold:
                 set_imag_freqs.add(index)
@@ -104,8 +111,11 @@ def perform_comparisons(
                 set_delta_g_f.add(index)
             if abs(delta_g0_r - delta_g1_r) > delta_g_threshold:
                 set_delta_g_r.add(index)
+        elif (not check0f0r and not check1f1r):
+            set_diff_ts.add(index)
 
-    return set_failed0, set_failed1, iter_comparison, set_same_ts, set_imag_freqs, set_delta_g_f, set_delta_g_r
+    return set_failed0, set_failed1, iter_comparison1, iter_comparison2, set_same_ts, set_diff_ts, set_imag_freqs,\
+        set_delta_g_f, set_delta_g_r, general_data
 
 
 def main():
@@ -124,18 +134,32 @@ def main():
 
     good_indices = check_present_indices(master_dict, indices)
 
-    set_failed0, set_failed1, iter_comparison, set_same_ts, set_imag_freqs, set_delta_g_f,\
-        set_delta_g_r = perform_comparisons(master_dict, good_indices, imag_freq_threshold, delta_g_threshold)
+    set_failed0, set_failed1, iter_comparison1, iter_comparison2, set_same_ts, set_diff_ts, \
+        set_imag_freqs, set_delta_g_f, set_delta_g_r, general_data = perform_comparisons(master_dict,
+                                                                                         good_indices,
+                                                                                         imag_freq_threshold,
+                                                                                         delta_g_threshold)
 
-    print(f"set TS failed0: {len(set_failed0)}: {set_failed0}")
+    print(f"\nset TS failed0: {len(set_failed0)}: {set_failed0}")
+    #for item in set_failed0:
+    #    print(f"({item[0]:>3d}, {item[1]:>8.2f}, {item[2]:>6.2f}, {item[3]:>6.2f})")
     print(f"set TS failed1: {len(set_failed1)}: {set_failed1}")
-    print(f"set both 1 and 0 TS failed: {len(set_failed0.intersection(set_failed1))}: {set_failed0.intersection(set_failed1)}")
-    print(f"\nIteration Comparison: {iter_comparison}")
+    #for item in set_failed1:
+    #    print(f"({item[0]:>3d}, {item[1]:>8.2f}, {item[2]:>6.2f}, {item[3]:>6.2f})")
+    print(f"set both 1 and 0 TS failed: {len(set_failed0.intersection(set_failed1))}:"
+          f" {set_failed0.intersection(set_failed1)}")
+
+    print(f"\nIteration Comparison1: {iter_comparison1}")
+    print(f"Iteration Comparison2: {iter_comparison2}")
+
     print(f"\nset_same_ts: {len(set_same_ts)}: {set_same_ts}")
+    print(f"set_diff_ts: {len(set_diff_ts)}: {set_diff_ts}")
+
     print(f"\nDifferent Imaginary Frequency Numbers: {len(set_imag_freqs)}: {set_imag_freqs}")
     print(f"Different DeltaG (forward) Numbers: {len(set_delta_g_f)}: {set_delta_g_f}")
     print(f"Different DeltaG (reverse) Numbers: {len(set_delta_g_r)}: {set_delta_g_r}")
 
-
+    np.set_printoptions(precision=2, suppress=True)
+    print(f"general_data:\n", general_data)
 if __name__ == "__main__":
     main()

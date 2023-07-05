@@ -119,7 +119,8 @@ def get_data(indices,
             if trajectory and isinstance(trajectory, list):
                 molecule_dict = trajectory[-1].get('molecule', {})
 
-        n_iters = len(output.get('ts', {}).get('trajectory_results', []))
+        n_iters1 = output.get('ts', {}).get('results', {}).get('nsteps', 0)
+        n_iters2 = len(output.get('ts', {}).get('trajectory_results', []))
         energy = output.get('thermo', {}).get('thermo', {}).get('results', {}).get('energy', 0.0)
         enthalpy = output.get('thermo', {}).get('thermo', {}).get('results', {}).get('enthalpy', 0.0)
         entropy = output.get('thermo', {}).get('thermo', {}).get('results', {}).get('entropy', 0.0)
@@ -128,7 +129,8 @@ def get_data(indices,
         imag_vib_freqs = output.get('thermo', {}).get('vib', {}).get('results', {}).get('imag_vib_freqs', 0.0)
 
         doc_dict[int(doc['metadata']['tag'].split('-')[-1])] = {
-            "n_iters": n_iters,
+            "n_iters1": n_iters1,
+            "n_iters2": n_iters2,
             "energy": energy,
             "enthalpy": enthalpy,
             "entropy": entropy,
@@ -140,16 +142,16 @@ def get_data(indices,
         }
 
     max_index = max(indices)  # Find the maximum index
-    all_analysis_data = np.zeros((max_index + 1, 8))  # Adjust the size of all_analysis_data
+    all_analysis_data = np.zeros((max_index + 1, 9))  # Adjust the size of all_analysis_data
 
-    # all_analysis_data = np.zeros((len(indices), 8))
     for index in indices:
         if index in doc_dict:
             data = doc_dict[index]
             relative_index = index - min(indices)  # Calculate the relative index
             all_analysis_data[relative_index, :] = [
                 index,
-                data["n_iters"],
+                data["n_iters1"],
+                data["n_iters2"],
                 data["energy"],
                 data["enthalpy"],
                 data["entropy"],
@@ -161,24 +163,6 @@ def get_data(indices,
         else:
             relative_index = index - min(indices)  # Calculate the relative index
             all_analysis_data[relative_index, 0] = index
-    '''
-    for index in indices:
-        if index in doc_dict:
-            data = doc_dict[index]
-            all_analysis_data[index, :] = [
-                index,
-                data["n_iters"],
-                data["energy"],
-                data["enthalpy"],
-                data["entropy"],
-                data["gibbs_free_energy"],
-                data["zpe"],
-                data["imag_vib_freq"]
-            ]
-            all_mols.append(data["mol"])
-        else:
-            all_analysis_data[index, 0] = index
-    '''
 
     if print_level:
         os.makedirs(log_dir, exist_ok=True)
