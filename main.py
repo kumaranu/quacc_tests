@@ -43,7 +43,7 @@ def check_present_indices(master_dict, indices):
     print(f'\nNumber of all-good indices: {len(good_indices)}')
     return good_indices
 
-
+'''
 def perform_comparisons(
         master_dict: Dict[int, Dict[str, List[Dict[str, any]]]],
         good_indices: List[int],
@@ -194,7 +194,7 @@ def perform_comparisons(
             set_diff_ts10.add(index)
     return set_failed0, set_failed1, iter_comparison1, iter_comparison2, set_same_ts, set_diff_ts0, set_diff_ts1,\
         set_diff_ts10, set_imag_freqs, set_delta_g_f, set_delta_g_r, general_data
-
+'''
 
 def main():
     lp_file = os.path.join(os.environ["HOME"], "fw_config/my_launchpad.yaml")
@@ -209,7 +209,9 @@ def main():
     delta_g_threshold = 0.0285 * 2
 
     master_dict = retrieve_data(lp_file, tag, indices)
-
+    print(master_dict.keys())
+    import sys
+    sys.exit()
     good_indices = check_present_indices(master_dict, indices)
 
     set_failed0, set_failed1, iter_comparison1, iter_comparison2, set_same_ts, set_diff_ts0,\
