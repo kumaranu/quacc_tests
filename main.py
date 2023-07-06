@@ -62,7 +62,9 @@ def perform_comparisons(
     iter_comparison1: Dict[int, int] = {0: 0, 1: 0}
     iter_comparison2: Dict[int, int] = {0: 0, 1: 0}
     set_same_ts: Set[int] = set()
-    set_diff_ts: Set[int] = set()
+    set_diff_ts1: Set[int] = set()
+    set_diff_ts0: Set[int] = set()
+    set_diff_ts10: Set[int] = set()
     set_imag_freqs: Set[int] = set()
     set_delta_g_f: Set[int] = set()
     set_delta_g_r: Set[int] = set()
@@ -81,19 +83,14 @@ def perform_comparisons(
         gibbs_ts0 = master_dict[0]["TS"][index]["gibbs_free_energy"]
         gibbs_f0 = master_dict[0]["firc"][index]["gibbs_free_energy"]
         gibbs_r0 = master_dict[0]["rirc"][index]["gibbs_free_energy"]
-        delta_g0_f = gibbs_ts0 - gibbs_f0
-        delta_g0_r = gibbs_ts0 - gibbs_r0
 
         gibbs_ts1 = master_dict[1]["TS"][index]["gibbs_free_energy"]
         gibbs_f1 = master_dict[1]["firc"][index]["gibbs_free_energy"]
         gibbs_r1 = master_dict[1]["rirc"][index]["gibbs_free_energy"]
-        delta_g1_f = gibbs_ts1 - gibbs_f1
-        delta_g1_r = gibbs_ts1 - gibbs_r1
 
         imag_freq0 = np.min(master_dict[0]["TS"][index]["imag_vib_freq"])
         imag_freq1 = np.min(master_dict[1]["TS"][index]["imag_vib_freq"])
 
-        general_data[ii, :] = [index, imag_freq0, imag_freq1, delta_g0_f, delta_g1_f, delta_g0_r, delta_g1_r]
         # Reactant and product have same bonding for type 0
         if check0f0r:
             set_failed0.add(index)
@@ -101,25 +98,102 @@ def perform_comparisons(
         if check1f1r:
             set_failed1.add(index)
 
-        # Reactant and product have different bonding
-        if (not check0f0r and not check1f1r) and ((check0f1f and check0r1r) or (check0f1r and check1f0r)):
-            set_same_ts.add(index)
-            iter_comparison1[0] += master_dict[0]["TS"][index]["n_iters1"]
-            iter_comparison1[1] += master_dict[1]["TS"][index]["n_iters1"]
-            iter_comparison2[0] += master_dict[0]["TS"][index]["n_iters2"]
-            iter_comparison2[1] += master_dict[1]["TS"][index]["n_iters2"]
+        # Reactant and product have different bonding for type 0
+        if not check0f0r:
+            # Reactant and product have different bonding for type 1
+            if not check1f1r:
 
-            if abs(imag_freq0 - imag_freq1) > imag_freq_threshold:
-                set_imag_freqs.add(index)
-            if abs(delta_g0_f - delta_g1_f) > delta_g_threshold:
-                set_delta_g_f.add(index)
-            if abs(delta_g0_r - delta_g1_r) > delta_g_threshold:
-                set_delta_g_r.add(index)
-        elif (not check0f0r and not check1f1r):
-            set_diff_ts.add(index)
+                ###############################################
+                #### Everything here is a transition state ####
+                ###############################################
 
-    return set_failed0, set_failed1, iter_comparison1, iter_comparison2, set_same_ts, set_diff_ts, set_imag_freqs,\
-        set_delta_g_f, set_delta_g_r, general_data
+                # Imaginary frequency is differing more than a threshold
+                if abs(imag_freq0 - imag_freq1) > imag_freq_threshold:
+                    set_imag_freqs.add(index)
+                # The reactant from type 0 and the reactant from type 1 have the same graph
+                if check0f1f and check0r1r:
+                        set_same_ts.add(index)
+
+                        iter_comparison1[0] += master_dict[0]["TS"][index]["n_iters1"]
+                        iter_comparison1[1] += master_dict[1]["TS"][index]["n_iters1"]
+                        iter_comparison2[0] += master_dict[0]["TS"][index]["n_iters2"]
+                        iter_comparison2[1] += master_dict[1]["TS"][index]["n_iters2"]
+
+                        # Forward and reverse energy barriers for type 0
+                        delta_g0_f = gibbs_ts0 - gibbs_f0
+                        delta_g0_r = gibbs_ts0 - gibbs_r0
+
+                        # Forward and reverse energy barriers for type 1
+                        delta_g1_f = gibbs_ts1 - gibbs_f1
+                        delta_g1_r = gibbs_ts1 - gibbs_r1
+                    # Reactance has the same graph but product doesn't
+                elif check0f1f and check0r1r:
+                    else:
+                        print(index, "reactant0 has the same graph as reactant1 but the product doesn't")
+                elif check0r1r:
+                    # The product from type 0 and the product from type 1 have the same graph
+                    if check0f1r:
+                        set_same_ts.add(index)
+
+                        iter_comparison1[0] += master_dict[0]["TS"][index]["n_iters1"]
+                        iter_comparison1[1] += master_dict[1]["TS"][index]["n_iters1"]
+                        iter_comparison2[0] += master_dict[0]["TS"][index]["n_iters2"]
+                        iter_comparison2[1] += master_dict[1]["TS"][index]["n_iters2"]
+
+                        # Forward and reverse energy barriers for type 0
+                        delta_g0_f = gibbs_ts0 - gibbs_f0
+                        delta_g0_r = gibbs_ts0 - gibbs_r0
+
+                        # Forward and reverse energy barriers for type 1
+                        delta_g1_f = gibbs_ts1 - gibbs_f1
+                        delta_g1_r = gibbs_ts1 - gibbs_r1
+                    # Reactance has the same graph but product doesn't
+                    else:
+                        print(index, "reactant0 has the same graph as reactant1 but the product doesn't")
+                # Reactants and products are switched between type 0 and type 1
+                elif check0f1r:
+                    if check1f0r:
+                        set_same_ts.add(index)
+
+                        iter_comparison1[0] += master_dict[0]["TS"][index]["n_iters1"]
+                        iter_comparison1[1] += master_dict[1]["TS"][index]["n_iters1"]
+                        iter_comparison2[0] += master_dict[0]["TS"][index]["n_iters2"]
+                        iter_comparison2[1] += master_dict[1]["TS"][index]["n_iters2"]
+
+                        # Forward and reverse energy barriers for type 0
+                        delta_g0_f = gibbs_ts0 - gibbs_f0
+                        delta_g0_r = gibbs_ts0 - gibbs_r0
+
+                        ###!!!!!!!############ NOTE ############!!!!!!!###
+                        ######## Using reverse IRC for Forward ###########
+                        ###################### and #######################
+                        ############## forward IRC for reverse ###########
+                        ##### to calculate energy barriers for type 1 ####
+                        delta_g1_f = gibbs_ts1 - gibbs_r1
+                        delta_g1_r = gibbs_ts1 - gibbs_f1
+                    else:
+                        print(index, 'graph from product1 matches with reactant0 but not the other way.')
+                else:
+                    print('TS exists in both 0 and 1 but Different TS!!!!')
+                    general_data[ii, :] = [index, imag_freq0, imag_freq1, delta_g0_f, delta_g1_f, delta_g0_r,
+                                           delta_g1_r]
+                if abs(delta_g0_f - delta_g1_f) > delta_g_threshold:
+                    set_delta_g_f.add(index)
+                if abs(delta_g0_r - delta_g1_r) > delta_g_threshold:
+                    set_delta_g_r.add(index)
+                general_data[ii, :] = [index, imag_freq0, imag_freq1, delta_g0_f, delta_g1_f, delta_g0_r, delta_g1_r]
+            else:
+                print('TS failed only in 1')
+                set_diff_ts1.add(index)
+                general_data[ii, :] = [index, imag_freq0, imag_freq1, delta_g0_f, delta_g1_f, delta_g0_r, delta_g1_r]
+        elif check0f0r and not check1f1r:
+            print('TS failed only in 0')
+            set_diff_ts0.add(index)
+        else:
+            print('TS failed in both 0 and 1')
+            set_diff_ts10.add(index)
+    return set_failed0, set_failed1, iter_comparison1, iter_comparison2, set_same_ts, set_diff_ts0, set_diff_ts1,\
+        set_diff_ts10, set_imag_freqs, set_delta_g_f, set_delta_g_r, general_data
 
 
 def main():
@@ -138,11 +212,12 @@ def main():
 
     good_indices = check_present_indices(master_dict, indices)
 
-    set_failed0, set_failed1, iter_comparison1, iter_comparison2, set_same_ts, set_diff_ts, \
-        set_imag_freqs, set_delta_g_f, set_delta_g_r, general_data = perform_comparisons(master_dict,
-                                                                                         good_indices,
-                                                                                         imag_freq_threshold,
-                                                                                         delta_g_threshold)
+    set_failed0, set_failed1, iter_comparison1, iter_comparison2, set_same_ts, set_diff_ts0,\
+        set_diff_ts1, set_diff_ts10, set_imag_freqs, set_delta_g_f, set_delta_g_r,\
+        general_data = perform_comparisons(master_dict,
+                                           good_indices,
+                                           imag_freq_threshold,
+                                           delta_g_threshold)
 
     print(f"\nset TS failed0: {len(set_failed0)}: {set_failed0}")
     #for item in set_failed0:
