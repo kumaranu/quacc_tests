@@ -2,6 +2,7 @@ import os
 import numpy as np
 from utils import compare_mols, get_data
 from typing import List, Dict, Set, Tuple
+from utils import get_data_wrapper
 
 
 def retrieve_data(lp_file, tag, indices):
@@ -67,7 +68,7 @@ def perform_comparisons(
     set_delta_g_r: Set[int] = set()
     set_failed0: Set[int] = set()
     set_failed1: Set[int] = set()
-    general_data: np.ndarray[float] = np.zeros((len(good_indices), 4))
+    general_data: np.ndarray[float] = np.zeros((len(good_indices), 7))
 
     for ii, index in enumerate(good_indices):
         check0f0r = compare_mols(master_dict[0]["firc"][index]["mol"], master_dict[0]["rirc"][index]["mol"])
@@ -92,12 +93,15 @@ def perform_comparisons(
         imag_freq0 = np.min(master_dict[0]["TS"][index]["imag_vib_freq"])
         imag_freq1 = np.min(master_dict[1]["TS"][index]["imag_vib_freq"])
 
-        general_data[ii, :] = [index, imag_freq0, delta_g0_f, delta_g0_r]
+        general_data[ii, :] = [index, imag_freq0, imag_freq1, delta_g0_f, delta_g1_f, delta_g0_r, delta_g1_r]
+        # Reactant and product have same bonding for type 0
         if check0f0r:
             set_failed0.add(index)
+        # Reactant and product have same bonding for type 1
         if check1f1r:
             set_failed1.add(index)
 
+        # Reactant and product have different bonding
         if (not check0f0r and not check1f1r) and ((check0f1f and check0r1r) or (check0f1r and check1f0r)):
             set_same_ts.add(index)
             iter_comparison1[0] += master_dict[0]["TS"][index]["n_iters1"]
@@ -159,7 +163,63 @@ def main():
     print(f"Different DeltaG (forward) Numbers: {len(set_delta_g_f)}: {set_delta_g_f}")
     print(f"Different DeltaG (reverse) Numbers: {len(set_delta_g_r)}: {set_delta_g_r}")
 
-    np.set_printoptions(precision=2, suppress=True)
+    np.set_printoptions(threshold=np.inf, precision=2, suppress=True)
     print(f"general_data:\n", general_data)
+
+def sams_calcs():
+    #Sam's calcs
+    data = {}
+    # TS optimization
+    lp_file = os.path.join(os.environ["HOME"], "fw_config/sam_launchpad.yaml")
+    tag = "sella_prod_1"
+    query = {
+        "metadata.class": tag
+    }
+    quacc_data = get_data_wrapper(lp_file, query, collections_name='quacc')
+    for doc in quacc_data:
+        index = int(doc['name'].split('_')[0][3:])
+        energy = doc['output']['trajectory_results'][-1]['energy']
+        niter = len(doc['output']['trajectory_results'])
+        # print(f'index: {index}, niter: {niter}')
+        data[index] = {'niter': niter}
+
+    # TS-freq
+    tag = "sella_prod_freq"
+    query = {
+        "tags.class": tag
+    }
+    quacc_data = get_data_wrapper(lp_file, query, collections_name='new_tasks')
+    count = 0
+    for doc in quacc_data:
+        index = int(doc['task_label'].split('_')[0][3:])
+        freq = doc['output']['frequencies'][0]
+        electronic_energy = doc['output']['final_energy']
+        enthalpy = doc['output']['enthalpy']
+        entropy = doc['output']['entropy']
+        temperature = 298.15
+        gibbs_free_energy = electronic_energy * 27.21139 + 0.0433641 * enthalpy - temperature * entropy * 0.0000433641
+        if index in data.keys():
+            # data[index]['gibbs_free_energy_ts'] = gibbs_free_energy
+            data[index]['freq'] = freq
+            count += 1
+        else:
+            print(f'skipping gibbs free energy for index: {index}')
+
+    # quasi-IRC
+    tag = "sella_prod_qirc"
+    query = {
+        "metadata.class": tag
+    }
+    quacc_data = get_data_wrapper(lp_file, query, collections_name='quacc')
+
+    for doc in quacc_data:
+        index = int(doc['name'].split('_')[0][3:])
+        niter = len(doc['output']['trajectory_results'])
+        data[index]['irc_iter'] = niter
+    for val in data.keys():
+        print(val, data[val])
+
+
 if __name__ == "__main__":
     main()
+    #sams_calcs()
