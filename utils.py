@@ -138,7 +138,8 @@ def get_data(indices,
             "zpe": zpe,
             "imag_vib_freq": np.min(imag_vib_freqs) if isinstance(imag_vib_freqs, list) and len(imag_vib_freqs) else 0,
             "molecule_dict": molecule_dict,
-            "mol": Molecule.from_dict(molecule_dict)
+            "mol": Molecule.from_dict(molecule_dict),
+            "trajectory": trajectory
         }
 
     max_index = max(indices)  # Find the maximum index
@@ -157,7 +158,7 @@ def get_data(indices,
                 data["entropy"],
                 data["gibbs_free_energy"],
                 data["zpe"],
-                data["imag_vib_freq"]
+                data["imag_vib_freq"],
             ]
             all_mols.append(data["mol"])
         else:
