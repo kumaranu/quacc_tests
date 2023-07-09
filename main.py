@@ -3,9 +3,11 @@ import os
 import ase.io
 from ase import Atoms
 import numpy as np
+from numpy import ndarray
+
 from utils import compare_mols, get_data
-from typing import List, Dict, Set, Tuple
-from utils import get_data_wrapper
+from typing import List, Dict, Set
+# from utils import get_data_wrapper
 
 
 def retrieve_data(lp_file, tag, indices):
@@ -43,7 +45,7 @@ def check_present_indices(master_dict, indices):
     failed_index_count1 = len(set([i[0] for i in set_err_1]))
     failed_index_count10 = len(set([i[0] for i in set_err_0.intersection(set_err_1)]))
 
-    print(f'Failed calculation counts for type-0 and type-1: ',
+    print(f'\nFailed calculation counts for type-0 and type-1: ',
           f'{failed_index_count0}, {failed_index_count1}')
     print(f'Failed calculations for type 0: {failed_index_count0}: {set_err_0}')
     print(f'Failed calculations for type 1: {failed_index_count1}: {set_err_1}')
@@ -58,16 +60,9 @@ def perform_comparisons(
         good_indices: List[int],
         imag_freq_threshold: float,
         delta_g_threshold: float
-) -> Tuple[
-    Dict[int, int],
-    Set[int],
-    Set[int],
-    Dict[int, int],
-    Set[int],
-    Set[int],
-    Set[int],
-    Set[int],
-]:
+) -> tuple[
+    set[int], set[int], dict[int, int], dict[int, int], set[int], set[int], set[int], set[int], set[int], ndarray[
+        float]]:
     iter_comparison1: Dict[int, int] = {0: 0, 1: 0}
     iter_comparison2: Dict[int, int] = {0: 0, 1: 0}
     set_same_rxn: Set[int] = set()
@@ -106,13 +101,8 @@ def perform_comparisons(
             delta_g0_f = gibbs_ts0 - gibbs_f0
             delta_g0_r = gibbs_ts0 - gibbs_r0
 
-            # ------------------------------------------------#
-            # ------- Using reverse IRC for Forward ----------#
-            # --------- and forward IRC for reverse ----------#
-            # ---- to calculate energy barriers for type 1 ---#
-            # ------------------------------------------------#
-            delta_g1_f = gibbs_ts1 - gibbs_r1
-            delta_g1_r = gibbs_ts1 - gibbs_f1
+            delta_g1_f = gibbs_ts1 - gibbs_f1
+            delta_g1_r = gibbs_ts1 - gibbs_r1
             general_data[ii, :] = [index,
                                    check0f0r,
                                    check1f1r,
@@ -128,13 +118,8 @@ def perform_comparisons(
             delta_g0_f = gibbs_ts0 - gibbs_f0
             delta_g0_r = gibbs_ts0 - gibbs_r0
 
-            # ------------------------------------------------#
-            # ------- Using reverse IRC for Forward ----------#
-            # --------- and forward IRC for reverse ----------#
-            # ---- to calculate energy barriers for type 1 ---#
-            # ------------------------------------------------#
-            delta_g1_f = gibbs_ts1 - gibbs_r1
-            delta_g1_r = gibbs_ts1 - gibbs_f1
+            delta_g1_f = gibbs_ts1 - gibbs_f1
+            delta_g1_r = gibbs_ts1 - gibbs_r1
 
             general_data[ii, :] = [index,
                                    check0f0r,
@@ -146,9 +131,11 @@ def perform_comparisons(
 
         # Reactant and product have different bonding in both type 0 and type 1
         if not check0f0r and not check1f1r:
-            #---------------------------------------------#
-            #--- Everything here is a reaction connecting different molecular systems ---#
-            #---------------------------------------------#
+            # --------------------------------------------- #
+            # ------- Everything here is a reaction ------- #
+            # --- connecting different molecular systems -- #
+            # --------------------------------------------- #
+
             # The reactant from type 0 and the reactant from type 1 have the same graph
             if check0f1f and check0r1r:
                 set_same_rxn.add(index)
@@ -165,6 +152,15 @@ def perform_comparisons(
                 # Forward and reverse energy barriers for type 1
                 delta_g1_f = gibbs_ts1 - gibbs_f1
                 delta_g1_r = gibbs_ts1 - gibbs_r1
+
+                general_data[ii, :] = [index,
+                                       check0f0r,
+                                       check1f1r,
+                                       (check0f1f and check0r1r) or (check0f1r and check1f0r),
+                                       imag_freq0, imag_freq1, abs(imag_freq0 - imag_freq1),
+                                       delta_g0_f, delta_g1_f, abs(delta_g0_f - delta_g1_f),
+                                       delta_g0_r, delta_g1_r, abs(delta_g0_r - delta_g1_r)]
+
                 # Imaginary frequency is differing more than a threshold
                 if abs(imag_freq0 - imag_freq1) > imag_freq_threshold:
                     set_imag_freqs.add(index)
@@ -174,13 +170,6 @@ def perform_comparisons(
                 # Delta G reverse is differing more than a threshold
                 if abs(delta_g0_r - delta_g1_r) > delta_g_threshold:
                     set_delta_g_r.add(index)
-                general_data[ii, :] = [index,
-                                       check0f0r,
-                                       check1f1r,
-                                       (check0f1f and check0r1r) or (check0f1r and check1f0r),
-                                       imag_freq0, imag_freq1, abs(imag_freq0 - imag_freq1),
-                                       delta_g0_f, delta_g1_f, abs(delta_g0_f - delta_g1_f),
-                                       delta_g0_r, delta_g1_r, abs(delta_g0_r - delta_g1_r)]
             # Reactants and products are switched between type 0 and type 1
             elif check0f1r and check1f0r:
                 set_same_rxn.add(index)
@@ -194,13 +183,21 @@ def perform_comparisons(
                 delta_g0_f = gibbs_ts0 - gibbs_f0
                 delta_g0_r = gibbs_ts0 - gibbs_r0
 
-                #------------------------------------------------#
-                #------- Using reverse IRC for Forward ----------#
-                #--------- and forward IRC for reverse ----------#
-                #---- to calculate energy barriers for type 1 ---#
-                #------------------------------------------------#
+                # ------------------------------------------------ #
+                # ------- Using reverse IRC for Forward ---------- #
+                # --------- and forward IRC for reverse ---------- #
+                # ---- to calculate energy barriers for type 1 --- #
+                # ------------------------------------------------ #
                 delta_g1_f = gibbs_ts1 - gibbs_r1
                 delta_g1_r = gibbs_ts1 - gibbs_f1
+
+                general_data[ii, :] = [index,
+                                       check0f0r,
+                                       check1f1r,
+                                       (check0f1f and check0r1r) or (check0f1r and check1f0r),
+                                       imag_freq0, imag_freq1, abs(imag_freq0 - imag_freq1),
+                                       delta_g0_f, delta_g1_f, abs(delta_g0_f - delta_g1_f),
+                                       delta_g0_r, delta_g1_r, abs(delta_g0_r - delta_g1_r)]
 
                 # Imaginary frequency is differing more than a threshold
                 if abs(imag_freq0 - imag_freq1) > imag_freq_threshold:
@@ -211,13 +208,6 @@ def perform_comparisons(
                 # Delta G reverse is differing more than a threshold
                 if abs(delta_g0_r - delta_g1_r) > delta_g_threshold:
                     set_delta_g_r.add(index)
-                general_data[ii, :] = [index,
-                                       check0f0r,
-                                       check1f1r,
-                                       (check0f1f and check0r1r) or (check0f1r and check1f0r),
-                                       imag_freq0, imag_freq1, abs(imag_freq0 - imag_freq1),
-                                       delta_g0_f, delta_g1_f, abs(delta_g0_f - delta_g1_f),
-                                       delta_g0_r, delta_g1_r, abs(delta_g0_r - delta_g1_r)]
             else:
                 set_diff_rxn.add(index)
 
@@ -260,20 +250,7 @@ def traj_arr_to_atoms_list(traj_array):
     return list_atoms
 
 
-def main():
-    lp_file = os.path.join(os.environ["HOME"], "fw_config/my_launchpad.yaml")
-    # tag = "sella_ts_prod_jun25_[10]"
-    tag = "sella_ts_prod_jul2b_[10]"
-
-    # Modify the indices based on your requirements
-    indices = np.arange(265)
-
-    # Modify the threshold values based on your requirements
-    imag_freq_threshold = 10
-    delta_g_threshold = 0.0285
-
-    master_dict = retrieve_data(lp_file, tag, indices)
-
+def log_trajectories(indices, master_dict):
     dir_name = "all_trajectories"
     os.makedirs(dir_name, exist_ok=True)
     os.chdir(dir_name)
@@ -291,20 +268,63 @@ def main():
                         traj_array = master_dict[ts_type][calc_type][index]['trajectory']
                         ase.io.write(calc_type + '.xyz', traj_arr_to_atoms_list(traj_array))
                     except Exception as e:
-                        print('index:', index)
-                        print("An error occurred:", e)
+                        print("TS: an error occurred while accessing trajectory for index:", e)
                 elif calc_type == 'firc' or calc_type == 'rirc':
                     try:
                         traj_array = master_dict[ts_type][calc_type][index]['trajectory']
                         ase.io.write('opt_qirc.xyz', traj_arr_to_atoms_list(traj_array))
                     except Exception as e:
-                        print('index:', index)
-                        print("An error occurred:", e)
+                        print("IRC: an error occurred while accessing trajectory for index:", e)
                 os.chdir('../')
             os.chdir('../')
         os.chdir('../')
     os.chdir('../')
 
+
+def main():
+    lp_file = os.path.join(os.environ["HOME"], "fw_config/my_launchpad.yaml")
+    # tag = "sella_ts_prod_jun25_[10]"
+    tag = "sella_ts_prod_jul2b_[10]"
+
+    # Modify the indices based on your requirements
+    indices = np.arange(265)
+
+    # Modify the threshold values based on your requirements
+    imag_freq_threshold = 10
+    delta_g_threshold = 0.0285
+
+    master_dict = retrieve_data(lp_file, tag, indices)
+    log_trajectories(indices, master_dict)
+    '''
+    dir_name = "all_trajectories"
+    os.makedirs(dir_name, exist_ok=True)
+    os.chdir(dir_name)
+    for ts_type in [0, 1]:
+        os.makedirs(str(ts_type), exist_ok=True)
+        os.chdir(str(ts_type))
+        for calc_type in ['TS', 'firc', 'rirc']:
+            os.makedirs(calc_type, exist_ok=True)
+            os.chdir(calc_type)
+            for index in indices:
+                os.makedirs(f'{index:03}', exist_ok=True)
+                os.chdir(f'{index:03}')
+                if calc_type == 'TS':
+                    try:
+                        traj_array = master_dict[ts_type][calc_type][index]['trajectory']
+                        ase.io.write(calc_type + '.xyz', traj_arr_to_atoms_list(traj_array))
+                    except Exception as e:
+                        print("TS: an error occurred while accessing trajectory for index:", e)
+                elif calc_type == 'firc' or calc_type == 'rirc':
+                    try:
+                        traj_array = master_dict[ts_type][calc_type][index]['trajectory']
+                        ase.io.write('opt_qirc.xyz', traj_arr_to_atoms_list(traj_array))
+                    except Exception as e:
+                        print("IRC: an error occurred while accessing trajectory for index:", e)
+                os.chdir('../')
+            os.chdir('../')
+        os.chdir('../')
+    os.chdir('../')
+    '''
     good_indices = check_present_indices(master_dict, indices)
 
     set_no_rxn0, set_no_rxn1, iter_comparison1, iter_comparison2, set_same_rxn, set_diff_rxn, set_imag_freqs,\
@@ -314,16 +334,13 @@ def main():
                                                                          delta_g_threshold)
 
     print(f"\nset no reaction 0: {len(set_no_rxn0)}: {set_no_rxn0}")
-    #for item in set_failed0:
-    #    print(f"({item[0]:>3d}, {item[1]:>8.2f}, {item[2]:>6.2f}, {item[3]:>6.2f})")
+    # for item in set_failed0:
+    #     print(f"({item[0]:>3d}, {item[1]:>8.2f}, {item[2]:>6.2f}, {item[3]:>6.2f})")
     print(f"set no reaction 1: {len(set_no_rxn1)}: {set_no_rxn1}")
-    #for item in set_failed1:
-    #    print(f"({item[0]:>3d}, {item[1]:>8.2f}, {item[2]:>6.2f}, {item[3]:>6.2f})")
+    # for item in set_failed1:
+    #     print(f"({item[0]:>3d}, {item[1]:>8.2f}, {item[2]:>6.2f}, {item[3]:>6.2f})")
     print(f"set both 1 and 0 did not have a reaction: {len(set_no_rxn0.intersection(set_no_rxn1))}:"
           f" {set_no_rxn0.intersection(set_no_rxn1)}")
-
-    print(f"\nIteration Comparison1: {iter_comparison1}")
-    print(f"Iteration Comparison2: {iter_comparison2}")
 
     print(f"\nset_same_rxn: {len(set_same_rxn)}: {set_same_rxn}")
     print(f"set_diff_rxn: {len(set_diff_rxn)}: {set_diff_rxn}")
@@ -332,11 +349,16 @@ def main():
     print(f"Different DeltaG (forward) Numbers: {len(set_delta_g_f)}: {set_delta_g_f}")
     print(f"Different DeltaG (reverse) Numbers: {len(set_delta_g_r)}: {set_delta_g_r}")
 
-    np.set_printoptions(threshold=np.inf, precision=2, suppress=True, linewidth=np.inf)
-    print(f"general_data:\n", general_data)
+    print(f"\nIteration Comparison1: {iter_comparison1}")
+    print(f"Iteration Comparison2: {iter_comparison2}")
 
+    np.set_printoptions(threshold=np.inf, precision=2, suppress=True, linewidth=np.inf)
+    print(f"\ngeneral_data:\n", general_data)
+
+
+'''
 def sams_calcs():
-    #Sam's calcs
+    # Sam's calcs
     data = {}
     # TS optimization
     lp_file = os.path.join(os.environ["HOME"], "fw_config/sam_launchpad.yaml")
@@ -349,7 +371,7 @@ def sams_calcs():
         index = int(doc['name'].split('_')[0][3:])
         energy = doc['output']['trajectory_results'][-1]['energy']
         niter = len(doc['output']['trajectory_results'])
-        # print(f'index: {index}, niter: {niter}')
+        # print(f"index: {index}, niter: {niter}")
         data[index] = {'niter': niter}
 
     # TS-freq
@@ -372,7 +394,7 @@ def sams_calcs():
             data[index]['freq'] = freq
             count += 1
         else:
-            print(f'skipping gibbs free energy for index: {index}')
+            print(f"skipping gibbs free energy for index: {index}")
 
     # quasi-IRC
     tag = "sella_prod_qirc"
@@ -387,8 +409,9 @@ def sams_calcs():
         data[index]['irc_iter'] = niter
     for val in data.keys():
         print(val, data[val])
+'''
 
 
 if __name__ == "__main__":
     main()
-    #sams_calcs()
+    # sams_calcs()
