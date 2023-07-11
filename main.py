@@ -7,7 +7,7 @@ from numpy import ndarray
 
 from utils import compare_mols, get_data
 from typing import List, Dict, Set
-# from utils import get_data_wrapper
+from visuals import process_trajectories
 
 
 def retrieve_data(lp_file, tag, indices):
@@ -267,12 +267,14 @@ def log_trajectories(indices, master_dict):
                     try:
                         traj_array = master_dict[ts_type][calc_type][index]['trajectory']
                         ase.io.write(calc_type + '.xyz', traj_arr_to_atoms_list(traj_array))
+                        process_trajectories(os.getcwd())
                     except Exception as e:
                         print("TS: an error occurred while accessing trajectory for index:", e)
                 elif calc_type == 'firc' or calc_type == 'rirc':
                     try:
                         traj_array = master_dict[ts_type][calc_type][index]['trajectory']
                         ase.io.write('opt_qirc.xyz', traj_arr_to_atoms_list(traj_array))
+                        process_trajectories(os.get_cwd())
                     except Exception as e:
                         print("IRC: an error occurred while accessing trajectory for index:", e)
                 os.chdir('../')
@@ -295,36 +297,6 @@ def main():
 
     master_dict = retrieve_data(lp_file, tag, indices)
     log_trajectories(indices, master_dict)
-    '''
-    dir_name = "all_trajectories"
-    os.makedirs(dir_name, exist_ok=True)
-    os.chdir(dir_name)
-    for ts_type in [0, 1]:
-        os.makedirs(str(ts_type), exist_ok=True)
-        os.chdir(str(ts_type))
-        for calc_type in ['TS', 'firc', 'rirc']:
-            os.makedirs(calc_type, exist_ok=True)
-            os.chdir(calc_type)
-            for index in indices:
-                os.makedirs(f'{index:03}', exist_ok=True)
-                os.chdir(f'{index:03}')
-                if calc_type == 'TS':
-                    try:
-                        traj_array = master_dict[ts_type][calc_type][index]['trajectory']
-                        ase.io.write(calc_type + '.xyz', traj_arr_to_atoms_list(traj_array))
-                    except Exception as e:
-                        print("TS: an error occurred while accessing trajectory for index:", e)
-                elif calc_type == 'firc' or calc_type == 'rirc':
-                    try:
-                        traj_array = master_dict[ts_type][calc_type][index]['trajectory']
-                        ase.io.write('opt_qirc.xyz', traj_arr_to_atoms_list(traj_array))
-                    except Exception as e:
-                        print("IRC: an error occurred while accessing trajectory for index:", e)
-                os.chdir('../')
-            os.chdir('../')
-        os.chdir('../')
-    os.chdir('../')
-    '''
     good_indices = check_present_indices(master_dict, indices)
 
     set_no_rxn0, set_no_rxn1, iter_comparison1, iter_comparison2, set_same_rxn, set_diff_rxn, set_imag_freqs,\
