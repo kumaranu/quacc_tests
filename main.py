@@ -274,7 +274,7 @@ def log_trajectories(indices, master_dict):
                     try:
                         traj_array = master_dict[ts_type][calc_type][index]['trajectory']
                         ase.io.write('opt_qirc.xyz', traj_arr_to_atoms_list(traj_array))
-                        process_trajectories(os.get_cwd())
+                        process_trajectories(os.getcwd())
                     except Exception as e:
                         print("IRC: an error occurred while accessing trajectory for index:", e)
                 os.chdir('../')
