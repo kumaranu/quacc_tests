@@ -121,6 +121,8 @@ def get_data(indices,
 
         n_iters1 = output.get('ts', {}).get('results', {}).get('nsteps', 0)
         n_iters2 = len(output.get('ts', {}).get('trajectory_results', []))
+        traj_results = output.get('ts', {}).get('trajectory_results', [])
+        energy_std_ts_traj_list = [conf_results['energy_std'] for conf_results in traj_results]
         energy = output.get('thermo', {}).get('thermo', {}).get('results', {}).get('energy', 0.0)
         enthalpy = output.get('thermo', {}).get('thermo', {}).get('results', {}).get('enthalpy', 0.0)
         entropy = output.get('thermo', {}).get('thermo', {}).get('results', {}).get('entropy', 0.0)
@@ -139,7 +141,8 @@ def get_data(indices,
             "imag_vib_freq": np.min(imag_vib_freqs) if isinstance(imag_vib_freqs, list) and len(imag_vib_freqs) else 0,
             "molecule_dict": molecule_dict,
             "mol": Molecule.from_dict(molecule_dict),
-            "trajectory": trajectory
+            "trajectory": trajectory,
+            "energy_std_ts_traj_list": energy_std_ts_traj_list
         }
 
     max_index = max(indices)  # Find the maximum index

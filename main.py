@@ -72,7 +72,7 @@ def perform_comparisons(
     set_delta_g_r: Set[int] = set()
     set_no_rxn0: Set[int] = set()
     set_no_rxn1: Set[int] = set()
-    general_data: np.ndarray[float] = np.zeros((len(good_indices), 13))
+    general_data: np.ndarray[float] = np.zeros((len(good_indices), 16))
 
     for ii, index in enumerate(good_indices):
         check0f0r = compare_mols(master_dict[0]["firc"][index]["mol"], master_dict[0]["rirc"][index]["mol"])
@@ -93,6 +93,9 @@ def perform_comparisons(
         imag_freq0 = np.min(master_dict[0]["TS"][index]["imag_vib_freq"])
         imag_freq1 = np.min(master_dict[1]["TS"][index]["imag_vib_freq"])
 
+        e_std_min = np.min(master_dict[0]['TS'][index]['energy_std_ts_traj_list'])
+        e_std_max = np.max(master_dict[0]['TS'][index]['energy_std_ts_traj_list'])
+        e_std_avg = np.mean(master_dict[0]['TS'][index]['energy_std_ts_traj_list'])
         # Reactant and product have same bonding for type 0
         if check0f0r:
             set_no_rxn0.add(index)
@@ -109,7 +112,8 @@ def perform_comparisons(
                                    (check0f1f and check0r1r) or (check0f1r and check1f0r),
                                    imag_freq0, imag_freq1, abs(imag_freq0 - imag_freq1),
                                    delta_g0_f, delta_g1_f, abs(delta_g0_f - delta_g1_f),
-                                   delta_g0_r, delta_g1_r, abs(delta_g0_r - delta_g1_r)]
+                                   delta_g0_r, delta_g1_r, abs(delta_g0_r - delta_g1_r),
+                                   e_std_min, e_std_max, e_std_avg]
         # Reactant and product have same bonding for type 1
         if check1f1r:
             set_no_rxn1.add(index)
@@ -127,7 +131,8 @@ def perform_comparisons(
                                    (check0f1f and check0r1r) or (check0f1r and check1f0r),
                                    imag_freq0, imag_freq1, abs(imag_freq0 - imag_freq1),
                                    delta_g0_f, delta_g1_f, abs(delta_g0_f - delta_g1_f),
-                                   delta_g0_r, delta_g1_r, abs(delta_g0_r - delta_g1_r)]
+                                   delta_g0_r, delta_g1_r, abs(delta_g0_r - delta_g1_r),
+                                   e_std_min, e_std_max, e_std_avg]
 
         # Reactant and product have different bonding in both type 0 and type 1
         if not check0f0r and not check1f1r:
@@ -159,7 +164,8 @@ def perform_comparisons(
                                        (check0f1f and check0r1r) or (check0f1r and check1f0r),
                                        imag_freq0, imag_freq1, abs(imag_freq0 - imag_freq1),
                                        delta_g0_f, delta_g1_f, abs(delta_g0_f - delta_g1_f),
-                                       delta_g0_r, delta_g1_r, abs(delta_g0_r - delta_g1_r)]
+                                       delta_g0_r, delta_g1_r, abs(delta_g0_r - delta_g1_r),
+                                       e_std_min, e_std_max, e_std_avg]
 
                 # Imaginary frequency is differing more than a threshold
                 if abs(imag_freq0 - imag_freq1) > imag_freq_threshold:
@@ -197,7 +203,8 @@ def perform_comparisons(
                                        (check0f1f and check0r1r) or (check0f1r and check1f0r),
                                        imag_freq0, imag_freq1, abs(imag_freq0 - imag_freq1),
                                        delta_g0_f, delta_g1_f, abs(delta_g0_f - delta_g1_f),
-                                       delta_g0_r, delta_g1_r, abs(delta_g0_r - delta_g1_r)]
+                                       delta_g0_r, delta_g1_r, abs(delta_g0_r - delta_g1_r),
+                                       e_std_min, e_std_max, e_std_avg]
 
                 # Imaginary frequency is differing more than a threshold
                 if abs(imag_freq0 - imag_freq1) > imag_freq_threshold:
@@ -233,7 +240,8 @@ def perform_comparisons(
                                        (check0f1f and check0r1r) or (check0f1r and check1f0r),
                                        imag_freq0, imag_freq1, abs(imag_freq0 - imag_freq1),
                                        delta_g0_f, delta_g1_f, abs(delta_g0_f - delta_g1_f),
-                                       delta_g0_r, delta_g1_r, abs(delta_g0_r - delta_g1_r)]
+                                       delta_g0_r, delta_g1_r, abs(delta_g0_r - delta_g1_r),
+                                       e_std_min, e_std_max, e_std_avg]
     return set_no_rxn0, set_no_rxn1, iter_comparison1, iter_comparison2, set_same_rxn, set_diff_rxn,\
         set_imag_freqs, set_delta_g_f, set_delta_g_r, general_data
 
@@ -296,7 +304,8 @@ def main():
     delta_g_threshold = 0.0285
 
     master_dict = retrieve_data(lp_file, tag, indices)
-    log_trajectories(indices, master_dict)
+
+    # log_trajectories(indices, master_dict)
     good_indices = check_present_indices(master_dict, indices)
 
     set_no_rxn0, set_no_rxn1, iter_comparison1, iter_comparison2, set_same_rxn, set_diff_rxn, set_imag_freqs,\
@@ -304,6 +313,39 @@ def main():
                                                                          good_indices,
                                                                          imag_freq_threshold,
                                                                          delta_g_threshold)
+    # Calculate correlation matrix
+    correlation_matrix = np.corrcoef(general_data[:, [1, 2, 3, 6, 9, 12, 15]],
+                                     rowvar=False)
+    print('correlation_matrix:\n', correlation_matrix)
+
+    import seaborn as sns
+    import matplotlib.pyplot as plt
+    row_labels = [
+        'Isomorphism 0',
+        'Isomorphism 1',
+        'Same reaction/TS',
+        'Imag-freq diff.',
+        'Delta G forward',
+        'Delta G reverse',
+        'Energy std. dev.'
+    ]
+    sns.heatmap(correlation_matrix,
+                annot=True,
+                cmap='coolwarm')
+    plt.xticks(
+        np.arange(correlation_matrix.shape[1]) + 0.5,
+        row_labels,
+        rotation=90
+    )
+    plt.yticks(
+        np.arange(correlation_matrix.shape[0]) + 0.5,
+        row_labels,
+        rotation=0
+    )
+    plt.title('Correlation Matrix Heatmap')
+    plt.rcParams['figure.figsize'] = [8, 6]
+    plt.tight_layout()
+    plt.show()
 
     print(f"\nset no reaction 0: {len(set_no_rxn0)}: {set_no_rxn0}")
     # for item in set_failed0:
