@@ -4,10 +4,13 @@ import ase.io
 from ase import Atoms
 import numpy as np
 from numpy import ndarray
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 from utils import compare_mols, get_data
 from typing import List, Dict, Set
 from visuals import process_trajectories
+from utils import get_data_wrapper
 
 
 def retrieve_data(lp_file, tag, indices):
@@ -72,7 +75,7 @@ def perform_comparisons(
     set_delta_g_r: Set[int] = set()
     set_no_rxn0: Set[int] = set()
     set_no_rxn1: Set[int] = set()
-    general_data: np.ndarray[float] = np.zeros((len(good_indices), 16))
+    general_data: np.ndarray[float] = np.zeros((len(good_indices), 17))
 
     for ii, index in enumerate(good_indices):
         check0f0r = compare_mols(master_dict[0]["firc"][index]["mol"], master_dict[0]["rirc"][index]["mol"])
@@ -96,6 +99,7 @@ def perform_comparisons(
         e_std_min = np.min(master_dict[0]['TS'][index]['energy_std_ts_traj_list'])
         e_std_max = np.max(master_dict[0]['TS'][index]['energy_std_ts_traj_list'])
         e_std_avg = np.mean(master_dict[0]['TS'][index]['energy_std_ts_traj_list'])
+        e_std_last = master_dict[0]['TS'][index]['energy_std_ts_traj_list'][-1]
         # Reactant and product have same bonding for type 0
         if check0f0r:
             set_no_rxn0.add(index)
@@ -113,7 +117,7 @@ def perform_comparisons(
                                    imag_freq0, imag_freq1, abs(imag_freq0 - imag_freq1),
                                    delta_g0_f, delta_g1_f, abs(delta_g0_f - delta_g1_f),
                                    delta_g0_r, delta_g1_r, abs(delta_g0_r - delta_g1_r),
-                                   e_std_min, e_std_max, e_std_avg]
+                                   e_std_min, e_std_max, e_std_avg, e_std_last]
         # Reactant and product have same bonding for type 1
         if check1f1r:
             set_no_rxn1.add(index)
@@ -132,7 +136,7 @@ def perform_comparisons(
                                    imag_freq0, imag_freq1, abs(imag_freq0 - imag_freq1),
                                    delta_g0_f, delta_g1_f, abs(delta_g0_f - delta_g1_f),
                                    delta_g0_r, delta_g1_r, abs(delta_g0_r - delta_g1_r),
-                                   e_std_min, e_std_max, e_std_avg]
+                                   e_std_min, e_std_max, e_std_avg, e_std_last]
 
         # Reactant and product have different bonding in both type 0 and type 1
         if not check0f0r and not check1f1r:
@@ -165,7 +169,7 @@ def perform_comparisons(
                                        imag_freq0, imag_freq1, abs(imag_freq0 - imag_freq1),
                                        delta_g0_f, delta_g1_f, abs(delta_g0_f - delta_g1_f),
                                        delta_g0_r, delta_g1_r, abs(delta_g0_r - delta_g1_r),
-                                       e_std_min, e_std_max, e_std_avg]
+                                       e_std_min, e_std_max, e_std_avg, e_std_last]
 
                 # Imaginary frequency is differing more than a threshold
                 if abs(imag_freq0 - imag_freq1) > imag_freq_threshold:
@@ -204,7 +208,7 @@ def perform_comparisons(
                                        imag_freq0, imag_freq1, abs(imag_freq0 - imag_freq1),
                                        delta_g0_f, delta_g1_f, abs(delta_g0_f - delta_g1_f),
                                        delta_g0_r, delta_g1_r, abs(delta_g0_r - delta_g1_r),
-                                       e_std_min, e_std_max, e_std_avg]
+                                       e_std_min, e_std_max, e_std_avg, e_std_last]
 
                 # Imaginary frequency is differing more than a threshold
                 if abs(imag_freq0 - imag_freq1) > imag_freq_threshold:
@@ -241,7 +245,7 @@ def perform_comparisons(
                                        imag_freq0, imag_freq1, abs(imag_freq0 - imag_freq1),
                                        delta_g0_f, delta_g1_f, abs(delta_g0_f - delta_g1_f),
                                        delta_g0_r, delta_g1_r, abs(delta_g0_r - delta_g1_r),
-                                       e_std_min, e_std_max, e_std_avg]
+                                       e_std_min, e_std_max, e_std_avg, e_std_last]
     return set_no_rxn0, set_no_rxn1, iter_comparison1, iter_comparison2, set_same_rxn, set_diff_rxn,\
         set_imag_freqs, set_delta_g_f, set_delta_g_r, general_data
 
@@ -291,35 +295,13 @@ def log_trajectories(indices, master_dict):
     os.chdir('../')
 
 
-def main():
-    lp_file = os.path.join(os.environ["HOME"], "fw_config/my_launchpad.yaml")
-    # tag = "sella_ts_prod_jun25_[10]"
-    tag = "sella_ts_prod_jul2b_[10]"
-
-    # Modify the indices based on your requirements
-    indices = np.arange(265)
-
-    # Modify the threshold values based on your requirements
-    imag_freq_threshold = 10
-    delta_g_threshold = 0.0285
-
-    master_dict = retrieve_data(lp_file, tag, indices)
-
-    # log_trajectories(indices, master_dict)
-    good_indices = check_present_indices(master_dict, indices)
-
-    set_no_rxn0, set_no_rxn1, iter_comparison1, iter_comparison2, set_same_rxn, set_diff_rxn, set_imag_freqs,\
-        set_delta_g_f, set_delta_g_r, general_data = perform_comparisons(master_dict,
-                                                                         good_indices,
-                                                                         imag_freq_threshold,
-                                                                         delta_g_threshold)
+def plot_correlations(general_data,
+                      columns_to_compare=[1, 2, 3, 6, 9, 12, 16]):
     # Calculate correlation matrix
-    correlation_matrix = np.corrcoef(general_data[:, [1, 2, 3, 6, 9, 12, 15]],
+    correlation_matrix = np.corrcoef(general_data[:, columns_to_compare],
                                      rowvar=False)
     print('correlation_matrix:\n', correlation_matrix)
 
-    import seaborn as sns
-    import matplotlib.pyplot as plt
     row_labels = [
         'Isomorphism 0',
         'Isomorphism 1',
@@ -347,6 +329,33 @@ def main():
     plt.tight_layout()
     plt.show()
 
+
+def main():
+    lp_file = os.path.join(os.environ["HOME"], "fw_config/my_launchpad.yaml")
+    # tag = "sella_ts_prod_jun25_[10]"
+    # tag = "sella_ts_prod_jul2b_[10]"
+    tag = "sella_ts_prod_jul13d_[10]"
+
+    # Modify the indices based on your requirements
+    indices = np.arange(265)
+
+    # Modify the threshold values based on your requirements
+    imag_freq_threshold = 10
+    delta_g_threshold = 0.0285
+
+    master_dict = retrieve_data(lp_file, tag, indices)
+
+    # log_trajectories(indices, master_dict)
+    good_indices = check_present_indices(master_dict, indices)
+
+    set_no_rxn0, set_no_rxn1, iter_comparison1, iter_comparison2, set_same_rxn, set_diff_rxn, set_imag_freqs,\
+        set_delta_g_f, set_delta_g_r, general_data = perform_comparisons(master_dict,
+                                                                         good_indices,
+                                                                         imag_freq_threshold,
+                                                                         delta_g_threshold)
+
+    # plot_correlations(general_data)
+
     print(f"\nset no reaction 0: {len(set_no_rxn0)}: {set_no_rxn0}")
     # for item in set_failed0:
     #     print(f"({item[0]:>3d}, {item[1]:>8.2f}, {item[2]:>6.2f}, {item[3]:>6.2f})")
@@ -370,7 +379,6 @@ def main():
     print(f"\ngeneral_data:\n", general_data)
 
 
-'''
 def sams_calcs():
     # Sam's calcs
     data = {}
@@ -381,12 +389,29 @@ def sams_calcs():
         "metadata.class": tag
     }
     quacc_data = get_data_wrapper(lp_file, query, collections_name='quacc')
+    os.makedirs('sams_trajectories', exist_ok=True)
+    os.makedirs('sams_trajectories/TS', exist_ok=True)
     for doc in quacc_data:
         index = int(doc['name'].split('_')[0][3:])
         energy = doc['output']['trajectory_results'][-1]['energy']
-        niter = len(doc['output']['trajectory_results'])
+        #traj_array = json.loads(doc['output']['trajectory'])
+        traj_array = doc['output']['trajectory']
+        atoms_list = traj_arr_to_atoms_list(traj_array)
+        niter = len(traj_array)
         # print(f"index: {index}, niter: {niter}")
         data[index] = {'niter': niter}
+
+        # os.chdir(calc_type)
+        os.makedirs(f'{index:03}', exist_ok=True)
+        # os.chdir(f'{index:03}')
+        try:
+            ase.io.write('sams_trajectories/' + calc_type + '/' + f'{index:03}' + '.xyz',
+                         traj_arr_to_atoms_list(traj_array))
+        except Exception as e:
+            print("TS: an error occurred while accessing trajectory for index:", e)
+        # os.chdir('../')
+        # os.chdir('../')
+        # os.chdir('../')
 
     # TS-freq
     tag = "sella_prod_freq"
@@ -423,9 +448,8 @@ def sams_calcs():
         data[index]['irc_iter'] = niter
     for val in data.keys():
         print(val, data[val])
-'''
 
 
 if __name__ == "__main__":
     main()
-    # sams_calcs()
+    #sams_calcs()

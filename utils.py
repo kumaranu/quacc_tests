@@ -1,5 +1,4 @@
 import os.path
-
 import numpy as np
 from maggma.stores import MongoStore
 from pymatgen.core.structure import Molecule
@@ -115,9 +114,12 @@ def get_data(indices,
             if trajectory and isinstance(trajectory, list):
                 molecule_dict = trajectory[-1].get('molecule', {})
         elif job_type in ['irc-forward', 'irc-reverse']:
-            trajectory = output.get('opt', {}).get('trajectory', [])
+            # trajectory = output.get('opt', {}).get('trajectory', [])
+            trajectory = output.get('irc', {}).get('trajectory', [])
             if trajectory and isinstance(trajectory, list):
                 molecule_dict = trajectory[-1].get('molecule', {})
+
+        print('molecule_dict:\n', molecule_dict)
 
         n_iters1 = output.get('ts', {}).get('results', {}).get('nsteps', 0)
         n_iters2 = len(output.get('ts', {}).get('trajectory_results', []))
@@ -163,7 +165,7 @@ def get_data(indices,
                 data["zpe"],
                 data["imag_vib_freq"],
             ]
-            all_mols.append(data["mol"])
+            #all_mols.append(data["mol"])
         else:
             relative_index = index - min(indices)  # Calculate the relative index
             all_analysis_data[relative_index, 0] = index
