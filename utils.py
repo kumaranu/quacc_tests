@@ -119,8 +119,6 @@ def get_data(indices,
             if trajectory and isinstance(trajectory, list):
                 molecule_dict = trajectory[-1].get('molecule', {})
 
-        print('molecule_dict:\n', molecule_dict)
-
         n_iters1 = output.get('ts', {}).get('results', {}).get('nsteps', 0)
         n_iters2 = len(output.get('ts', {}).get('trajectory_results', []))
         traj_results = output.get('ts', {}).get('trajectory_results', [])

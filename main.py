@@ -262,6 +262,30 @@ def traj_arr_to_atoms_list(traj_array):
     return list_atoms
 
 
+def log_transition_states(indices, master_dict):
+        dir_name = "all_transition_states"
+        os.makedirs(dir_name, exist_ok=True)
+        os.chdir(dir_name)
+        for ts_type in [0, 1]:
+            os.makedirs(str(ts_type), exist_ok=True)
+            os.chdir(str(ts_type))
+            for index in indices:
+                try:
+                    conf = master_dict[ts_type]['TS'][index]['trajectory'][-1]
+                    data = json.loads(conf['atoms']['atoms_json'])
+                    numbers = np.array(data["numbers"]["__ndarray__"][2])
+                    positions = np.array(data["positions"]["__ndarray__"][2])
+                    atoms = Atoms(
+                        numbers=numbers,
+                        positions=np.reshape(positions, (len(numbers), 3))
+                    )
+                    ase.io.write(f'ts{ts_type}_{index:03}.xyz', atoms)
+                except Exception as e:
+                    print("TS: an error occurred while accessing transition state for index:", e)
+            os.chdir('../')
+        os.chdir('../')
+
+
 def log_trajectories(indices, master_dict):
     dir_name = "all_trajectories"
     os.makedirs(dir_name, exist_ok=True)
@@ -296,11 +320,13 @@ def log_trajectories(indices, master_dict):
 
 
 def plot_correlations(general_data,
-                      columns_to_compare=[1, 2, 3, 6, 9, 12, 16]):
+                      columns_to_compare=None):
     # Calculate correlation matrix
+    if columns_to_compare is None:
+        columns_to_compare = [1, 2, 3, 6, 9, 12, 16]
     correlation_matrix = np.corrcoef(general_data[:, columns_to_compare],
                                      rowvar=False)
-    print('correlation_matrix:\n', correlation_matrix)
+    # print('correlation_matrix:\n', correlation_matrix)
 
     row_labels = [
         'Isomorphism 0',
@@ -346,6 +372,8 @@ def main():
     master_dict = retrieve_data(lp_file, tag, indices)
 
     # log_trajectories(indices, master_dict)
+    log_transition_states(indices, master_dict)
+
     good_indices = check_present_indices(master_dict, indices)
 
     set_no_rxn0, set_no_rxn1, iter_comparison1, iter_comparison2, set_same_rxn, set_diff_rxn, set_imag_freqs,\
@@ -375,8 +403,9 @@ def main():
     print(f"\nIteration Comparison1: {iter_comparison1}")
     print(f"Iteration Comparison2: {iter_comparison2}")
 
-    np.set_printoptions(threshold=np.inf, precision=2, suppress=True, linewidth=np.inf)
-    print(f"\ngeneral_data:\n", general_data)
+    # np.set_printoptions(threshold=np.inf, precision=2, suppress=True, linewidth=np.inf)
+    # print(f"\ngeneral_data:\n", general_data)
+    return general_data
 
 
 def sams_calcs():
@@ -389,29 +418,22 @@ def sams_calcs():
         "metadata.class": tag
     }
     quacc_data = get_data_wrapper(lp_file, query, collections_name='quacc')
+
+    print('from ts-opt calcs: len(quacc_data):', len(quacc_data))
+
     os.makedirs('sams_trajectories', exist_ok=True)
     os.makedirs('sams_trajectories/TS', exist_ok=True)
     for doc in quacc_data:
         index = int(doc['name'].split('_')[0][3:])
-        energy = doc['output']['trajectory_results'][-1]['energy']
-        #traj_array = json.loads(doc['output']['trajectory'])
         traj_array = doc['output']['trajectory']
-        atoms_list = traj_arr_to_atoms_list(traj_array)
         niter = len(traj_array)
-        # print(f"index: {index}, niter: {niter}")
-        data[index] = {'niter': niter}
-
-        # os.chdir(calc_type)
-        os.makedirs(f'{index:03}', exist_ok=True)
-        # os.chdir(f'{index:03}')
+        data[index] = {'niter_ts': niter}
+        os.makedirs(f'sams_trajectories/TS/{index:03}', exist_ok=True)
         try:
-            ase.io.write('sams_trajectories/' + calc_type + '/' + f'{index:03}' + '.xyz',
+            ase.io.write(f'sams_trajectories/TS/{index:03}/{index:03}.xyz',
                          traj_arr_to_atoms_list(traj_array))
         except Exception as e:
             print("TS: an error occurred while accessing trajectory for index:", e)
-        # os.chdir('../')
-        # os.chdir('../')
-        # os.chdir('../')
 
     # TS-freq
     tag = "sella_prod_freq"
@@ -419,6 +441,9 @@ def sams_calcs():
         "tags.class": tag
     }
     quacc_data = get_data_wrapper(lp_file, query, collections_name='new_tasks')
+
+    print('from ts-freq calcs: len(quacc_data):', len(quacc_data))
+
     count = 0
     for doc in quacc_data:
         index = int(doc['task_label'].split('_')[0][3:])
@@ -429,27 +454,82 @@ def sams_calcs():
         temperature = 298.15
         gibbs_free_energy = electronic_energy * 27.21139 + 0.0433641 * enthalpy - temperature * entropy * 0.0000433641
         if index in data.keys():
-            # data[index]['gibbs_free_energy_ts'] = gibbs_free_energy
+            data[index]['gibbs_free_energy_ts'] = gibbs_free_energy
             data[index]['freq'] = freq
             count += 1
         else:
             print(f"skipping gibbs free energy for index: {index}")
 
     # quasi-IRC
-    tag = "sella_prod_qirc"
+    # tag = "sella_prod_qirc"
+    tag = "sella_prod_irc"
     query = {
         "metadata.class": tag
     }
     quacc_data = get_data_wrapper(lp_file, query, collections_name='quacc')
 
+    print('from qirc calcs: len(quacc_data):', len(quacc_data))
+
     for doc in quacc_data:
         index = int(doc['name'].split('_')[0][3:])
-        niter = len(doc['output']['trajectory_results'])
-        data[index]['irc_iter'] = niter
-    for val in data.keys():
-        print(val, data[val])
+        irc_type = doc['name'].split('_')[2]
+        if irc_type == 'forward':
+            niter = len(doc['output']['trajectory_results'])
+            data[index]['irc_iter_f'] = niter
+        elif irc_type == 'reverse':
+            niter = len(doc['output']['trajectory_results'])
+            data[index]['irc_iter_r'] = niter
+
+    # freq quasi-IRC
+    tag = "sella_prod_qirc_freq"
+    query = {
+        'tags.class': tag
+    }
+    query_data = get_data_wrapper(lp_file, query, collections_name='new_tasks')
+
+    print('from qirc-freq calcs: len(quacc_data):', len(quacc_data))
+
+    for doc in query_data:
+        index = int(doc['task_label'].split('_')[0][3:])
+        irc_type = doc['task_label'].split('_')[2]
+
+        # print(f'index: {index}, irc_type: {irc_type}')
+
+        electronic_energy = doc['output']['final_energy']
+        enthalpy = doc['output']['enthalpy']
+        entropy = doc['output']['entropy']
+        temperature = 298.15
+        gibbs_free_energy = electronic_energy * 27.21139 + 0.0433641 * enthalpy - temperature * entropy * 0.0000433641
+        if irc_type == 'forward':
+            data[index]['gibbs_free_energy_f'] = gibbs_free_energy
+            data[index]['delta_g_f'] = data[index]['gibbs_free_energy_ts'] - data[index]['gibbs_free_energy_f']
+
+        if irc_type == 'reverse':
+            data[index]['gibbs_free_energy_r'] = gibbs_free_energy
+            data[index]['delta_g_r'] = data[index]['gibbs_free_energy_ts'] - data[index]['gibbs_free_energy_r']
+    return data
 
 
 if __name__ == "__main__":
-    main()
-    #sams_calcs()
+    general_data = main()
+    # print('general_data:\n', general_data)
+
+    data = sams_calcs()
+    # for val in data.keys():
+
+    #     print(val, data[val])
+'''
+    print('len(data):', len(data))
+    for index1 in data.keys():
+        for ii, index2 in enumerate(general_data[:, 0]):
+            if index1 == index2:
+                continue
+                # print('index:', index1, 'data[index1].keys():', data[index1].keys())
+                # print('general_data[ii, 7]:', general_data[ii, 7])
+                
+                try:
+                    if data[index1]['gibbs_free_energy_f'] - general_data[ii, 7] > 0.1:
+                        print(f'index {index1:03} has different results for delta G forward')
+                except Exception as e:
+                    print(f'Index {index1} is missing across NewtonNet and Q-CHEM')
+                '''
