@@ -531,6 +531,7 @@ if __name__ == "__main__":
     result_array = [list(inner_dict.values()) for inner_dict in data.values()]
     print(result_array)
 
+
     print('len(data):', len(data))
 
     for index1 in data.keys():
