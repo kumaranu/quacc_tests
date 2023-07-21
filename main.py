@@ -100,6 +100,7 @@ def perform_comparisons(
         e_std_max = np.max(master_dict[0]['TS'][index]['energy_std_ts_traj_list'])
         e_std_avg = np.mean(master_dict[0]['TS'][index]['energy_std_ts_traj_list'])
         e_std_last = master_dict[0]['TS'][index]['energy_std_ts_traj_list'][-1]
+
         # Reactant and product have same bonding for type 0
         if check0f0r:
             set_no_rxn0.add(index)
@@ -463,11 +464,8 @@ def sams_calcs():
     # quasi-IRC
     # tag = "sella_prod_qirc"
     tag = "sella_prod_irc"
-    query = {
-        "metadata.class": tag
-    }
+    query = {"metadata.class": tag}
     quacc_data = get_data_wrapper(lp_file, query, collections_name='quacc')
-
     print('from qirc calcs: len(quacc_data):', len(quacc_data))
 
     for doc in quacc_data:
@@ -481,12 +479,10 @@ def sams_calcs():
             data[index]['irc_iter_r'] = niter
 
     # freq quasi-IRC
-    tag = "sella_prod_qirc_freq"
-    query = {
-        'tags.class': tag
-    }
+    # tag = "sella_prod_qirc_freq"
+    tag = "sella_irc_freq"
+    query = {'tags.class': tag}
     query_data = get_data_wrapper(lp_file, query, collections_name='new_tasks')
-
     print('from qirc-freq calcs: len(quacc_data):', len(quacc_data))
 
     for doc in query_data:
@@ -495,11 +491,15 @@ def sams_calcs():
 
         # print(f'index: {index}, irc_type: {irc_type}')
 
-        electronic_energy = doc['output']['final_energy']
-        enthalpy = doc['output']['enthalpy']
-        entropy = doc['output']['entropy']
-        temperature = 298.15
-        gibbs_free_energy = electronic_energy * 27.21139 + 0.0433641 * enthalpy - temperature * entropy * 0.0000433641
+        electronic_energy: float = doc['output']['final_energy']
+        enthalpy: float = doc['output']['enthalpy']
+        entropy: float = doc['output']['entropy']
+        temperature: float = 298.15
+
+        gibbs_free_energy = electronic_energy * 27.21139 +\
+                            enthalpy * 0.0433641 -\
+                            temperature * entropy * 0.0000433641
+
         if irc_type == 'forward':
             data[index]['gibbs_free_energy_f'] = gibbs_free_energy
             data[index]['delta_g_f'] = data[index]['gibbs_free_energy_ts'] - data[index]['gibbs_free_energy_f']
@@ -515,15 +515,28 @@ if __name__ == "__main__":
     # print('general_data:\n', general_data)
 
     data = sams_calcs()
-    # for val in data.keys():
+    '''
+    for val in data.keys():
+        print(val, data[val])
+    '''
+    # print('data.keys():', data.keys())
 
-    #     print(val, data[val])
-'''
+    for element in data:
+        data_row_list = list(data[element].values())
+        if len(data_row_list) == 9:
+            data_row_list.insert(0, element)
+            print(data_row_list)
+    print('type(data):', type(data))
+    # Extract values from the inner dictionaries and convert to a list of lists
+    result_array = [list(inner_dict.values()) for inner_dict in data.values()]
+    print(result_array)
+
     print('len(data):', len(data))
+
     for index1 in data.keys():
         for ii, index2 in enumerate(general_data[:, 0]):
             if index1 == index2:
-                continue
+                # continue
                 # print('index:', index1, 'data[index1].keys():', data[index1].keys())
                 # print('general_data[ii, 7]:', general_data[ii, 7])
                 
@@ -532,4 +545,3 @@ if __name__ == "__main__":
                         print(f'index {index1:03} has different results for delta G forward')
                 except Exception as e:
                     print(f'Index {index1} is missing across NewtonNet and Q-CHEM')
-                '''
