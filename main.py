@@ -373,7 +373,7 @@ def main():
     master_dict = retrieve_data(lp_file, tag, indices)
 
     # log_trajectories(indices, master_dict)
-    log_transition_states(indices, master_dict)
+    # log_transition_states(indices, master_dict)
 
     good_indices = check_present_indices(master_dict, indices)
 
@@ -406,6 +406,7 @@ def main():
 
     # np.set_printoptions(threshold=np.inf, precision=2, suppress=True, linewidth=np.inf)
     # print(f"\ngeneral_data:\n", general_data)
+    np.savetxt('general_data.txt', general_data, fmt='%.5f')
     return general_data
 
 
@@ -496,9 +497,7 @@ def sams_calcs():
         entropy: float = doc['output']['entropy']
         temperature: float = 298.15
 
-        gibbs_free_energy = electronic_energy * 27.21139 +\
-                            enthalpy * 0.0433641 -\
-                            temperature * entropy * 0.0000433641
+        gibbs_free_energy = electronic_energy * 27.21139 + enthalpy * 0.0433641 - temperature * entropy * 0.0000433641
 
         if irc_type == 'forward':
             data[index]['gibbs_free_energy_f'] = gibbs_free_energy
@@ -511,38 +510,44 @@ def sams_calcs():
 
 
 if __name__ == "__main__":
-    general_data = main()
+    # general_data = main()
     # print('general_data:\n', general_data)
+    general_data = np.loadtxt('general_data.txt')
 
     data = sams_calcs()
-    '''
-    for val in data.keys():
-        print(val, data[val])
-    '''
-    # print('data.keys():', data.keys())
 
+    count = 0
+    count2 = 0
     for element in data:
         data_row_list = list(data[element].values())
         if len(data_row_list) == 9:
             data_row_list.insert(0, element)
-            print(data_row_list)
-    print('type(data):', type(data))
+            if abs(data_row_list[7] - data_row_list[9]) < 0.01:
+                count += 1
+            elif 0.01 < abs(data_row_list[7] - data_row_list[9]) < 0.1:
+                count2 += 1
+    print('\nDelta G forward = Delta G reverse (No reaction) count:', count)
+    print('count2:', count2)
+
     # Extract values from the inner dictionaries and convert to a list of lists
-    result_array = [list(inner_dict.values()) for inner_dict in data.values()]
-    print(result_array)
+    result_list = []
+    for index, inner_dict in data.items():
+        # print(index, inner_dict)
+        if len(inner_dict) == 9:
+            result_list.append([index] + list(inner_dict.values()))
+    result_array = np.asarray(result_list)
+    np.savetxt('sams_results.txt', result_array, fmt='%.5f')
 
-
-    print('len(data):', len(data))
-
+    count = 0
     for index1 in data.keys():
         for ii, index2 in enumerate(general_data[:, 0]):
             if index1 == index2:
-                # continue
-                # print('index:', index1, 'data[index1].keys():', data[index1].keys())
-                # print('general_data[ii, 7]:', general_data[ii, 7])
-                
-                try:
-                    if data[index1]['gibbs_free_energy_f'] - general_data[ii, 7] > 0.1:
-                        print(f'index {index1:03} has different results for delta G forward')
-                except Exception as e:
-                    print(f'Index {index1} is missing across NewtonNet and Q-CHEM')
+                if general_data[ii, 3]:
+                    try:
+                        print(data[index1]['delta_g_f'], general_data[ii, 7])
+                        if abs(data[index1]['delta_g_f'] - general_data[ii, 7]) > 0.5:
+                            count += 1
+                            # print(f'index {index1:03} has different results for delta G forward')
+                    except Exception as e:
+                        print(f'Index {index1} is missing across NewtonNet and Q-CHEM')
+    print('count', count)
