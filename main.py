@@ -362,9 +362,13 @@ def main():
     # tag = "sella_ts_prod_jun25_[10]"
     # tag = "sella_ts_prod_jul2b_[10]"
     tag = "sella_ts_prod_jul13d_[10]"
+    # tag = "sella_ts_prod_aug1_[10]"
+    # tag = "sella_ts_prod_aug1b_[10]"
 
     # Modify the indices based on your requirements
     indices = np.arange(265)
+    # indices = [24, 38, 71, 107, 112, 167, 185, 189, 218, 237, 240, 253, 256]
+    # indices = [107, 185]
 
     # Modify the threshold values based on your requirements
     imag_freq_threshold = 10
@@ -411,22 +415,25 @@ def main():
 
 
 def sams_calcs():
+    qchem_dict = {f'{i:03}':{} for i in range(265)}
     # Sam's calcs
     data = {}
     # TS optimization
     lp_file = os.path.join(os.environ["HOME"], "fw_config/sam_launchpad.yaml")
-    tag = "sella_prod_1"
-    query = {
-        "metadata.class": tag
-    }
-    quacc_data = get_data_wrapper(lp_file, query, collections_name='quacc')
-
-    print('from ts-opt calcs: len(quacc_data):', len(quacc_data))
+    query = {"metadata.class": "sella_prod_1"}
+    quacc_data1 = get_data_wrapper(lp_file, query, collections_name='quacc')
+    # print('type(quacc_data):', type(quacc_data1))
+    # print(quacc_data1[0].keys())
+    # print(quacc_data1[0]['metadata'].keys())
+    # print(quacc_data1[0]['output'].keys())
+    # print(quacc_data1[0]['output']['name'])
+    # print('from ts-opt calcs: len(quacc_data):', len(quacc_data1))
 
     os.makedirs('sams_trajectories', exist_ok=True)
     os.makedirs('sams_trajectories/TS', exist_ok=True)
-    for doc in quacc_data:
+    for doc in quacc_data1:
         index = int(doc['name'].split('_')[0][3:])
+        qchem_dict[f'{index:03}']['ts'] = doc
         traj_array = doc['output']['trajectory']
         niter = len(traj_array)
         data[index] = {'niter_ts': niter}
@@ -438,17 +445,14 @@ def sams_calcs():
             print("TS: an error occurred while accessing trajectory for index:", e)
 
     # TS-freq
-    tag = "sella_prod_freq"
-    query = {
-        "tags.class": tag
-    }
-    quacc_data = get_data_wrapper(lp_file, query, collections_name='new_tasks')
-
-    print('from ts-freq calcs: len(quacc_data):', len(quacc_data))
+    query2 = {"tags.class": "sella_prod_freq"}
+    quacc_data2 = get_data_wrapper(lp_file, query2, collections_name='new_tasks')
+    print('from ts-freq calcs: len(quacc_data):', len(quacc_data2))
 
     count = 0
-    for doc in quacc_data:
+    for doc in quacc_data2:
         index = int(doc['task_label'].split('_')[0][3:])
+        qchem_dict[f'{index:03}']['ts_freq'] = doc
         freq = doc['output']['frequencies'][0]
         electronic_energy = doc['output']['final_energy']
         enthalpy = doc['output']['enthalpy']
@@ -464,29 +468,30 @@ def sams_calcs():
 
     # quasi-IRC
     # tag = "sella_prod_qirc"
-    tag = "sella_prod_irc"
-    query = {"metadata.class": tag}
-    quacc_data = get_data_wrapper(lp_file, query, collections_name='quacc')
-    print('from qirc calcs: len(quacc_data):', len(quacc_data))
+    query3 = {"metadata.class": "sella_prod_irc"}
+    quacc_data3 = get_data_wrapper(lp_file, query3, collections_name='quacc')
+    print('from qirc calcs: len(quacc_data):', len(quacc_data3))
 
-    for doc in quacc_data:
+    for doc in quacc_data3:
         index = int(doc['name'].split('_')[0][3:])
         irc_type = doc['name'].split('_')[2]
         if irc_type == 'forward':
+            qchem_dict[f'{index:03}']['firc'] = doc
             niter = len(doc['output']['trajectory_results'])
             data[index]['irc_iter_f'] = niter
         elif irc_type == 'reverse':
+            qchem_dict[f'{index:03}']['rirc'] = doc
             niter = len(doc['output']['trajectory_results'])
             data[index]['irc_iter_r'] = niter
 
     # freq quasi-IRC
     # tag = "sella_prod_qirc_freq"
     tag = "sella_irc_freq"
-    query = {'tags.class': tag}
-    query_data = get_data_wrapper(lp_file, query, collections_name='new_tasks')
-    print('from qirc-freq calcs: len(quacc_data):', len(quacc_data))
+    query4 = {'tags.class': tag}
+    quacc_data4 = get_data_wrapper(lp_file, query4, collections_name='new_tasks')
+    print('from qirc-freq calcs: len(quacc_data):', len(quacc_data4))
 
-    for doc in query_data:
+    for doc in quacc_data4:
         index = int(doc['task_label'].split('_')[0][3:])
         irc_type = doc['task_label'].split('_')[2]
 
@@ -500,22 +505,21 @@ def sams_calcs():
         gibbs_free_energy = electronic_energy * 27.21139 + enthalpy * 0.0433641 - temperature * entropy * 0.0000433641
 
         if irc_type == 'forward':
+            qchem_dict[f'{index:03}']['firc_freq'] = doc
             data[index]['gibbs_free_energy_f'] = gibbs_free_energy
             data[index]['delta_g_f'] = data[index]['gibbs_free_energy_ts'] - data[index]['gibbs_free_energy_f']
 
         if irc_type == 'reverse':
+            qchem_dict[f'{index:03}']['rirc_freq'] = doc
             data[index]['gibbs_free_energy_r'] = gibbs_free_energy
             data[index]['delta_g_r'] = data[index]['gibbs_free_energy_ts'] - data[index]['gibbs_free_energy_r']
+
+    print(len([key for key, value in qchem_dict.items() if len(value) > 5]))
+
     return data
 
 
-if __name__ == "__main__":
-    # general_data = main()
-    # print('general_data:\n', general_data)
-    general_data = np.loadtxt('general_data.txt')
-
-    data = sams_calcs()
-
+def comparison_nn_dft(general_data, data):
     count = 0
     count2 = 0
     for element in data:
@@ -551,3 +555,198 @@ if __name__ == "__main__":
                     except Exception as e:
                         print(f'Index {index1} is missing across NewtonNet and Q-CHEM')
     print('count', count)
+
+
+'''
+def graph_compare(general_data, data, good_indices):
+    for ii, index in enumerate(good_indices):
+        check0f0r = compare_mols(, )
+        check1f1r = compare_mols(, )
+        check0f1f = compare_mols(, )
+        check0r1r = compare_mols(, )
+        check0f1r = compare_mols(, )
+        check1f0r = compare_mols(, )
+
+        if check0f0r:
+            set_no_rxn0.add(index)
+            general_data[ii, :] = [index, check0f0r, check1f1r, (check0f1f and check0r1r) or (check0f1r and check1f0r)]
+        if check1f1r:
+            set_no_rxn1.add(index)
+            general_data[ii, :] = [index, check0f0r, check1f1r, (check0f1f and check0r1r) or (check0f1r and check1f0r)]
+
+        if not check0f0r and not check1f1r:
+            if check0f1f and check0r1r:
+                set_same_rxn.add(index)
+                general_data[ii, :] = [index, check0f0r, check1f1r, (check0f1f and check0r1r) or (check0f1r and check1f0r)]
+            elif check0f1r and check1f0r:
+                set_same_rxn.add(index)
+                general_data[ii, :] = [index, check0f0r, check1f1r, (check0f1f and check0r1r) or (check0f1r and check1f0r)]
+            else:
+                set_diff_rxn.add(index)
+                general_data[ii, :] = [index, check0f0r, check1f1r, (check0f1f and check0r1r) or (check0f1r and check1f0r)]
+'''
+
+
+def nn_rxn_plot(x):
+    # Extract the columns
+    column1 = x[:, 1]
+    column2 = x[:, 2]
+    column3 = x[:, 3]
+
+    # Calculate the sums
+    type0_rxn = int(np.sum(column1))
+    type1_rxn = int(np.sum(column2))
+    both_same_rxn = int(np.sum(column1 * column2 * column3))
+    both_diff_rxn = int(np.sum((1-column1) * (1-column2) * (1-column3)))
+
+    # Create a bar chart
+    plt.figure(figsize=(10, 8))
+    bars = plt.bar(['Using\n ML-Hessian', 'Without\n Hessian', 'Both\n cases'],
+                   [type0_rxn, type1_rxn, both_same_rxn, both_diff_rxn],
+                   color=['blue', 'green', 'red', 'orange'],
+                   width=0.75
+                   )
+
+    # Add labels to the bars
+    for bar in bars:
+        height = bar.get_height()
+        plt.annotate(f'{height}',
+                     xy=(bar.get_x() + bar.get_width() / 2, height),
+                     xytext=(0, 3),
+                     textcoords="offset points",
+                     ha='center',
+                     va='bottom',
+                     fontsize=22)
+
+    # Add labels and title
+    # plt.xlabel('Type of calculation', fontsize=24)
+    plt.ylabel('Number of tests', fontsize=24)
+    plt.title('No chemical reactions',
+              fontsize=26)
+
+    # Adjust font size for tick labels on both x and y axes
+    plt.xticks(fontsize=22)  # Increase fontsize here for x-axis tick labels
+    plt.yticks(fontsize=22)  # Increase fontsize here for y-axis tick labels
+
+    # Set y-axis limits to provide space for the title
+    plt.ylim(top=max(type0_rxn, type1_rxn, both_same_rxn, both_diff_rxn) * 1.1)
+
+    # Show the plot
+    plt.tight_layout()
+    plt.show()
+    # plt.savefig('rxn.png', dpi=300)
+
+
+def nn_no_rxn_plot(x):
+    # Extract the columns
+    column1 = x[:, 1]
+    column2 = x[:, 2]
+
+    # Calculate the sums
+    sum_column1 = int(np.sum(column1))
+    sum_column2 = int(np.sum(column2))
+    sum_product = int(np.sum(column1 * column2))
+
+    # Create a bar chart
+    plt.figure(figsize=(10, 8))
+    bars = plt.bar(['Using\n ML-Hessian', 'Without\n Hessian', 'Both\n cases'],
+                   [sum_column1, sum_column2, sum_product],
+                   color=['blue', 'green', 'red'],
+                   width=0.75
+                   )
+
+    # Add labels to the bars
+    for bar in bars:
+        height = bar.get_height()
+        plt.annotate(f'{height}',
+                     xy=(bar.get_x() + bar.get_width() / 2, height),
+                     xytext=(0, 3),
+                     textcoords="offset points",
+                     ha='center',
+                     va='bottom',
+                     fontsize=22)
+
+    # Add labels and title
+    # plt.xlabel('Type of calculation', fontsize=24)
+    plt.ylabel('Number of tests', fontsize=24)
+    plt.title('No chemical reactions',
+              fontsize=26)
+
+    # Adjust font size for tick labels on both x and y axes
+    plt.xticks(fontsize=22)  # Increase fontsize here for x-axis tick labels
+    plt.yticks(fontsize=22)  # Increase fontsize here for y-axis tick labels
+
+    # Set y-axis limits to provide space for the title
+    plt.ylim(top=max(sum_column1, sum_column2, sum_product) * 1.1)  # Increase or decrease 1.2 to control space
+
+    # Show the plot
+    plt.tight_layout()
+    # plt.show()
+    plt.savefig('no_rxn.png', dpi=300)
+
+
+def nn_diff_property_plot(x):
+    # Extract the columns
+    column1 = x[:, 1]
+    column2 = x[:, 2]
+
+    # Calculate the sums
+    sum_column1 = int(np.sum((1 - x[:, 1]) * (1 - x[:, 2]) * x[:, 3] * (x[:, 6] > 10)))
+    sum_column2 = int(np.sum((1 - x[:, 1]) * (1 - x[:, 2]) * x[:, 3] * (x[:, 9] > 0.0285)))
+    sum_product = int(np.sum((1 - x[:, 1]) * (1 - x[:, 2]) * x[:, 3] * (x[:, 12] > 0.0285)))
+
+    # Create a bar chart
+    plt.figure(figsize=(10, 8))
+    bars = plt.bar(
+        [
+            '$\Delta$' + r'$\nu$' + '$> 10\iota$' + '\n' + r'$\left(cm^{-1}\right)$',
+            r'$\Delta G^{\ddag}_{forward} > 10$' + '\n' + r'$\left(cm^{-1}\right)$',
+            r'$\Delta G^{\ddag}_{reverse} > 10$' + '\n' + r'$\left(cm^{-1}\right)$',
+        ],
+        [sum_column1, sum_column2, sum_product],
+        color=['blue', 'green', 'red'],
+        width=0.75
+    )
+
+    # Add labels to the bars
+    for bar in bars:
+        height = bar.get_height()
+        plt.annotate(f'{height}',
+                     xy=(bar.get_x() + bar.get_width() / 2, height),
+                     xytext=(0, 3),
+                     textcoords="offset points",
+                     ha='center',
+                     va='bottom',
+                     fontsize=22)
+
+    # Add labels and title
+    # plt.xlabel('Type of calculation', fontsize=24)
+    plt.ylabel('Number of tests', fontsize=24)
+    plt.title('Difference in the properties for\n with/without Hessian results',
+              fontsize=26)
+
+    # Adjust font size for tick labels on both x and y axes
+    plt.xticks(fontsize=22)  # Increase fontsize here for x-axis tick labels
+    plt.yticks(fontsize=22)  # Increase fontsize here for y-axis tick labels
+
+    # Set y-axis limits to provide space for the title
+    plt.ylim(top=max(sum_column1, sum_column2, sum_product) * 1.1)  # Increase or decrease 1.2 to control space
+
+    # Show the plot
+    plt.tight_layout()
+    # plt.show()
+    plt.savefig('diff_property.png', dpi=300)
+
+
+if __name__ == "__main__":
+    # general_data = main()
+    # print('general_data:\n', general_data)
+    # general_data = np.loadtxt('general_data.txt')
+
+    # nn_no_rxn_plot(general_data)
+    # nn_rxn_plot(general_data) ERROR IN THIS FUNCTION
+    # nn_diff_property_plot(general_data)
+
+    data = sams_calcs()
+
+    # comparison_nn_dft(general_data, data)
