@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="05834ade-dccd-447a-b4a4-8f8fe121e578" name="Changes" comment="Added more analysis on Q-Chem results." />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="FlaskConsoleOptions" custom-start-script="import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\nApp: %s [%s]\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))">
+    <envs>
+      <env key="FLASK_APP" value="app" />
+    </envs>
+    <option name="myCustomStartScript" value="import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\nApp: %s [%s]\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))" />
+    <option name="myEnvs">
+      <map>
+        <entry key="FLASK_APP" value="app" />
+      </map>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitToolBoxStore">
+    <option name="projectConfigVersion" value="5" />
+    <option name="recentBranches">
+      <RecentBranches>
+        <option name="branchesForRepo">
+          <list>
+            <RecentBranchesForRepo>
+              <option name="branches">
+                <list>
+                  <RecentBranch>
+                    <option name="branchName" value="main" />
+                    <option name="lastUsedInstant" value="1692918910" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="master" />
+                    <option name="lastUsedInstant" value="1692918883" />
+                  </RecentBranch>
+                </list>
+              </option>
+              <option name="repositoryRootUrl" value="file://$PROJECT_DIR$" />
+            </RecentBranchesForRepo>
+          </list>
+        </option>
+      </RecentBranches>
+    </option>
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/main.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/tests/test_main.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/utils.py" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2RdhNQ8CVjLaScUbe2yBm6VJA8b" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "Rebasing main",
+    "last_opened_file_path": "/home/kumaranu/Documents/quacc_tests",
+    "settings.editor.selected.configurable": "Errors"
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <module name="quacc_tests" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="05834ade-dccd-447a-b4a4-8f8fe121e578" name="Changes" comment="" />
+      <created>1687585824412</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1687585824412</updated>
+      <workItem from="1687585825460" duration="22966000" />
+      <workItem from="1687989195111" duration="167949000" />
+      <workItem from="1689125014815" duration="11248000" />
+      <workItem from="1689288035882" duration="22814000" />
+      <workItem from="1689628867090" duration="41457000" />
+      <workItem from="1689906857424" duration="47205000" />
+      <workItem from="1691005371012" duration="47505000" />
+      <workItem from="1691789499959" duration="444000" />
+      <workItem from="1692824155880" duration="7000" />
+      <workItem from="1692827370417" duration="4106000" />
+      <workItem from="1692918360128" duration="555000" />
+    </task>
+    <task id="LOCAL-00001" summary="Added graph comparison changes and also the first working version with negative frequencies.">
+      <created>1687768872566</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1687768872566</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Added main.py, a functional file for analysis_prod7.py">
+      <created>1687771649237</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1687771649237</updated>
+    </task>
+    <task id="LOCAL-00003" summary="I have added some more analysis in the good indices function.">
+      <created>1688005181212</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1688005181212</updated>
+    </task>
+    <task id="LOCAL-00004" summary="I have added some more analysis in the good indices function.">
+      <created>1688005200589</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1688005200589</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Added ts_error counts and indices using sets.">
+      <created>1688077375777</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1688077375777</updated>
+    </task>
+    <task id="LOCAL-00006" summary="First test for quacc_tests">
+      <created>1688087034014</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1688087034014</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Added log directory to for the data files downloaded from the database.">
+      <created>1688089803834</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1688089803834</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Removed data files">
+      <created>1688089967588</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1688089967588</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Added some type hints in the tests">
+      <created>1688097141276</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1688097141276</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Adding molecules manually for tests.">
+      <created>1688159579438</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1688159579438</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Passed util tests">
+      <created>1688164053974</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1688164053974</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Trying to add tests for get_data. It is not working as of now.">
+      <created>1688174371797</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1688174371797</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Added a few more tests.">
+      <created>1688339351124</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1688339351124</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Cleaned the tests and moved more towards sets than numbers.">
+      <created>1688434831112</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1688434831112</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Cleaned up the analysis script.">
+      <created>1688437360848</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1688437360848</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Concised if conditions.">
+      <created>1688437688390</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1688437688390</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Changed the analysis main to have general data variable.">
+      <created>1688530945598</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1688530945598</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Checking the delta G errors deeply.">
+      <created>1688606385815</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1688606385815</updated>
+    </task>
+    <task id="LOCAL-00019" summary="Trying to correct delta G problems. Not done yet.">
+      <created>1688614174859</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1688614174859</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Commented out the comparison function for time being.">
+      <created>1688686772998</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1688686772998</updated>
+    </task>
+    <task id="LOCAL-00021" summary="modified the main to have robust gen_data.">
+      <created>1688699826498</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1688699826498</updated>
+    </task>
+    <task id="LOCAL-00022" summary="Added trajectory printing and modified the gen data with Eric.">
+      <created>1688789997117</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1688789997117</updated>
+    </task>
+    <task id="LOCAL-00023" summary="Not sure what I did here but cleaned up the code a bit.">
+      <created>1688945219853</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1688945219853</updated>
+    </task>
+    <task id="LOCAL-00024" summary="Added mp4 movie generation for TS">
+      <created>1689043396691</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1689043396691</updated>
+    </task>
+    <task id="LOCAL-00025" summary="Added mp4 movie generation for TS and IRCs.">
+      <created>1689049453276</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1689049453276</updated>
+    </task>
+    <task id="LOCAL-00026" summary="Added correlation matrix and its heat plot.">
+      <created>1689213263606</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1689213263606</updated>
+    </task>
+    <task id="LOCAL-00027" summary="Latest version.">
+      <created>1689470645510</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1689470645510</updated>
+    </task>
+    <task id="LOCAL-00028" summary="I have addded the analysis part for Sam's calculations.">
+      <option name="closed" value="true" />
+      <created>1689745061674</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1689745061674</updated>
+    </task>
+    <task id="LOCAL-00029" summary="I have addded the analysis part for Sam's calculations.">
+      <option name="closed" value="true" />
+      <created>1689914673709</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1689914673709</updated>
+    </task>
+    <task id="LOCAL-00030" summary="Updated the analysis for Sam's results.">
+      <option name="closed" value="true" />
+      <created>1689914722351</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1689914722351</updated>
+    </task>
+    <task id="LOCAL-00031" summary="Added more analysis on Q-Chem results. They don't match well yet.">
+      <option name="closed" value="true" />
+      <created>1690348141245</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1690348141245</updated>
+    </task>
+    <task id="LOCAL-00032" summary="Added more analysis on Q-Chem results.">
+      <option name="closed" value="true" />
+      <created>1691031107845</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1691031107845</updated>
+    </task>
+    <option name="localTasksCounter" value="33" />
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Added log directory to for the data files downloaded from the database." />
+    <MESSAGE value="Removed data files" />
+    <MESSAGE value="Added some type hints in the tests" />
+    <MESSAGE value="Adding molecules manually for tests." />
+    <MESSAGE value="Passed util tests" />
+    <MESSAGE value="Trying to add tests for get_data. It is not working as of now." />
+    <MESSAGE value="Added a few more tests." />
+    <MESSAGE value="Cleaned the tests and moved more towards sets than numbers." />
+    <MESSAGE value="Cleaned up the analysis script." />
+    <MESSAGE value="Concised if conditions." />
+    <MESSAGE value="Changed the analysis main to have general data variable." />
+    <MESSAGE value="Checking the delta G errors deeply." />
+    <MESSAGE value="Trying to correct delta G problems. Not done yet." />
+    <MESSAGE value="Commented out the comparison function for time being." />
+    <MESSAGE value="modified the main to have robust gen_data." />
+    <MESSAGE value="Added trajectory printing and modified the gen data with Eric." />
+    <MESSAGE value="Not sure what I did here but cleaned up the code a bit." />
+    <MESSAGE value="Added mp4 movie generation for TS" />
+    <MESSAGE value="Added mp4 movie generation for TS and IRCs." />
+    <MESSAGE value="Added correlation matrix and its heat plot." />
+    <MESSAGE value="Latest version." />
+    <MESSAGE value="I have addded the analysis part for Sam's calculations." />
+    <MESSAGE value="Updated the analysis for Sam's results." />
+    <MESSAGE value="Added more analysis on Q-Chem results. They don't match well yet." />
+    <MESSAGE value="Added more analysis on Q-Chem results." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added more analysis on Q-Chem results." />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/quacc_tests$.coverage" NAME=" Coverage Results" MODIFIED="1687989203361" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/quacc_tests$main.coverage" NAME="main Coverage Results" MODIFIED="1690333656302" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+  </component>
+</project>
