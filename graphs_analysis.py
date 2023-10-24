@@ -30,37 +30,7 @@ def plot_mismatch_data(graph_comps, data1, data2, threshold_low, threshold_high)
 
     plt.savefig('mismatch_graph_eigs.png', dpi=300)
     plt.close()
-'''
 
-def plot_same_graph_data(graph_comps, data1, data2, threshold_low, threshold_high):
-    x_graph = graph_comps[:, 0]
-    y1_graph = graph_comps[:, 1]
-    y2_graph = graph_comps[:, 2]
-    mismatch_indices = np.where((y1_graph=1) or (y2_graph=1)[0]
-
-    x_data1 = data1[:, 0]
-    y1_data1 = data1[:, 6]
-    x_data2 = data2[:, 0]
-    y1_data2 = data2[:, 6]
-
-    x_filtered1 = x_data1[mismatch_indices]
-    y1_filtered1 = y1_data1[mismatch_indices]
-    x_filtered2 = x_data2[mismatch_indices]
-    y1_filtered2 = y1_data2[mismatch_indices]
-
-    plt.plot(x_filtered1, y1_filtered1, label='Custom Hessian', color='blue')
-    plt.scatter(x_filtered2, y1_filtered2, label='No custom Hessian', color='red')
-
-    plt.xlabel('Index')
-    plt.ylabel('7th Column')
-    plt.title('Mismatched Data Comparison')
-
-    plt.legend()
-    #plt.show()
-
-    plt.savefig('same_graph_graph_eigs.png', dpi=300)
-    plt.close()
-'''
 
 def plot_graph_comps(graph_comps):
     x  = graph_comps[:, 0]
@@ -144,7 +114,7 @@ if __name__ == '__main__':
     plot_niter_comps(all_analysis_data0TS, all_analysis_data1TS, 0, 99)
 
     plot_mismatch_data(graph_comps, all_analysis_data0TS, all_analysis_data1TS, -50, -3.6)
-    #plot_same_graph_data(graph_comps, all_analysis_data0TS, all_analysis_data1TS, -50, -3.6)
+    # plot_same_graph_data(graph_comps, all_analysis_data0TS, all_analysis_data1TS, -50, -3.6)
 
 
 def plot_mismatch_data(graph_comps, data1, data2, threshold_low, threshold_high):
@@ -166,5 +136,3 @@ def plot_mismatch_data(graph_comps, data1, data2, threshold_low, threshold_high)
 
     plt.plot(x_filtered1, y1_filtered, label='Custom Hessian', color='blue')
     plt.scatter(x_filtered2, y2_filtered, label='No custom Hessian', color='red')
-
-

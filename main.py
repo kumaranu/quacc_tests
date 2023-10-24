@@ -6,6 +6,7 @@ import numpy as np
 from numpy import ndarray
 import seaborn as sns
 import matplotlib.pyplot as plt
+import logging
 
 from utils import compare_mols, get_data
 from typing import List, Dict, Set
@@ -75,7 +76,7 @@ def perform_comparisons(
     set_delta_g_r: Set[int] = set()
     set_no_rxn0: Set[int] = set()
     set_no_rxn1: Set[int] = set()
-    general_data: np.ndarray[float] = np.zeros((len(good_indices), 17))
+    general_data: np.ndarray[float] = np.zeros((len(good_indices), 23))
 
     for ii, index in enumerate(good_indices):
         check0f0r = compare_mols(master_dict[0]["firc"][index]["mol"], master_dict[0]["rirc"][index]["mol"])
@@ -96,6 +97,9 @@ def perform_comparisons(
         imag_freq0 = np.min(master_dict[0]["TS"][index]["imag_vib_freq"])
         imag_freq1 = np.min(master_dict[1]["TS"][index]["imag_vib_freq"])
 
+        ts_energy0 = np.min(master_dict[0]["TS"][index]["energy"])
+        ts_energy1 = np.min(master_dict[1]["TS"][index]["energy"])
+
         e_std_min = np.min(master_dict[0]['TS'][index]['energy_std_ts_traj_list'])
         e_std_max = np.max(master_dict[0]['TS'][index]['energy_std_ts_traj_list'])
         e_std_avg = np.mean(master_dict[0]['TS'][index]['energy_std_ts_traj_list'])
@@ -111,6 +115,10 @@ def perform_comparisons(
 
             delta_g1_f = gibbs_ts1 - gibbs_f1
             delta_g1_r = gibbs_ts1 - gibbs_r1
+            iter0 = master_dict[0]["TS"][index]["n_iters1"]
+            iter1 = master_dict[1]["TS"][index]["n_iters1"]
+            iter0b = master_dict[0]["TS"][index]["n_iters2"]
+            iter1b = master_dict[1]["TS"][index]["n_iters2"]
             general_data[ii, :] = [index,
                                    check0f0r,
                                    check1f1r,
@@ -118,7 +126,8 @@ def perform_comparisons(
                                    imag_freq0, imag_freq1, abs(imag_freq0 - imag_freq1),
                                    delta_g0_f, delta_g1_f, abs(delta_g0_f - delta_g1_f),
                                    delta_g0_r, delta_g1_r, abs(delta_g0_r - delta_g1_r),
-                                   e_std_min, e_std_max, e_std_avg, e_std_last]
+                                   e_std_min, e_std_max, e_std_avg, e_std_last,
+                                   iter0, iter1, iter0b, iter1b, ts_energy0, ts_energy1]
         # Reactant and product have same bonding for type 1
         if check1f1r:
             set_no_rxn1.add(index)
@@ -129,7 +138,10 @@ def perform_comparisons(
 
             delta_g1_f = gibbs_ts1 - gibbs_f1
             delta_g1_r = gibbs_ts1 - gibbs_r1
-
+            iter0 = master_dict[0]["TS"][index]["n_iters1"]
+            iter1 = master_dict[1]["TS"][index]["n_iters1"]
+            iter0b = master_dict[0]["TS"][index]["n_iters2"]
+            iter1b = master_dict[1]["TS"][index]["n_iters2"]
             general_data[ii, :] = [index,
                                    check0f0r,
                                    check1f1r,
@@ -137,7 +149,8 @@ def perform_comparisons(
                                    imag_freq0, imag_freq1, abs(imag_freq0 - imag_freq1),
                                    delta_g0_f, delta_g1_f, abs(delta_g0_f - delta_g1_f),
                                    delta_g0_r, delta_g1_r, abs(delta_g0_r - delta_g1_r),
-                                   e_std_min, e_std_max, e_std_avg, e_std_last]
+                                   e_std_min, e_std_max, e_std_avg, e_std_last,
+                                   iter0, iter1, iter0b, iter1b, ts_energy0, ts_energy1]
 
         # Reactant and product have different bonding in both type 0 and type 1
         if not check0f0r and not check1f1r:
@@ -163,6 +176,11 @@ def perform_comparisons(
                 delta_g1_f = gibbs_ts1 - gibbs_f1
                 delta_g1_r = gibbs_ts1 - gibbs_r1
 
+                iter0 = master_dict[0]["TS"][index]["n_iters1"]
+                iter1 = master_dict[1]["TS"][index]["n_iters1"]
+                iter0b = master_dict[0]["TS"][index]["n_iters2"]
+                iter1b = master_dict[1]["TS"][index]["n_iters2"]
+
                 general_data[ii, :] = [index,
                                        check0f0r,
                                        check1f1r,
@@ -170,7 +188,8 @@ def perform_comparisons(
                                        imag_freq0, imag_freq1, abs(imag_freq0 - imag_freq1),
                                        delta_g0_f, delta_g1_f, abs(delta_g0_f - delta_g1_f),
                                        delta_g0_r, delta_g1_r, abs(delta_g0_r - delta_g1_r),
-                                       e_std_min, e_std_max, e_std_avg, e_std_last]
+                                       e_std_min, e_std_max, e_std_avg, e_std_last,
+                                       iter0, iter1, iter0b, iter1b, ts_energy0, ts_energy1]
 
                 # Imaginary frequency is differing more than a threshold
                 if abs(imag_freq0 - imag_freq1) > imag_freq_threshold:
@@ -202,6 +221,10 @@ def perform_comparisons(
                 delta_g1_f = gibbs_ts1 - gibbs_r1
                 delta_g1_r = gibbs_ts1 - gibbs_f1
 
+                iter0 = master_dict[0]["TS"][index]["n_iters1"]
+                iter1 = master_dict[1]["TS"][index]["n_iters1"]
+                iter0b = master_dict[0]["TS"][index]["n_iters2"]
+                iter1b = master_dict[1]["TS"][index]["n_iters2"]
                 general_data[ii, :] = [index,
                                        check0f0r,
                                        check1f1r,
@@ -209,7 +232,8 @@ def perform_comparisons(
                                        imag_freq0, imag_freq1, abs(imag_freq0 - imag_freq1),
                                        delta_g0_f, delta_g1_f, abs(delta_g0_f - delta_g1_f),
                                        delta_g0_r, delta_g1_r, abs(delta_g0_r - delta_g1_r),
-                                       e_std_min, e_std_max, e_std_avg, e_std_last]
+                                       e_std_min, e_std_max, e_std_avg, e_std_last,
+                                       iter0, iter1, iter0b, iter1b, ts_energy0, ts_energy1]
 
                 # Imaginary frequency is differing more than a threshold
                 if abs(imag_freq0 - imag_freq1) > imag_freq_threshold:
@@ -239,6 +263,10 @@ def perform_comparisons(
                     delta_g1_f = gibbs_ts1 - gibbs_f1
                     delta_g1_r = gibbs_ts1 - gibbs_r1
 
+                iter0 = master_dict[0]["TS"][index]["n_iters1"]
+                iter1 = master_dict[1]["TS"][index]["n_iters1"]
+                iter0b = master_dict[0]["TS"][index]["n_iters2"]
+                iter1b = master_dict[1]["TS"][index]["n_iters2"]
                 general_data[ii, :] = [index,
                                        check0f0r,
                                        check1f1r,
@@ -246,12 +274,25 @@ def perform_comparisons(
                                        imag_freq0, imag_freq1, abs(imag_freq0 - imag_freq1),
                                        delta_g0_f, delta_g1_f, abs(delta_g0_f - delta_g1_f),
                                        delta_g0_r, delta_g1_r, abs(delta_g0_r - delta_g1_r),
-                                       e_std_min, e_std_max, e_std_avg, e_std_last]
+                                       e_std_min, e_std_max, e_std_avg, e_std_last,
+                                       iter0, iter1, iter0b, iter1b, ts_energy0, ts_energy1]
     return set_no_rxn0, set_no_rxn1, iter_comparison1, iter_comparison2, set_same_rxn, set_diff_rxn,\
         set_imag_freqs, set_delta_g_f, set_delta_g_r, general_data
 
 
 def traj_arr_to_atoms_list(traj_array):
+    """
+    Convert a trajectory array to a list of ASE Atoms objects.
+
+    This function takes a trajectory array, where each entry contains information
+    about atoms' numbers and positions, and converts it into a list of ASE Atoms objects.
+
+    Parameters:
+    traj_array (list): A list of trajectory entries, each containing atoms' numbers and positions.
+
+    Returns:
+    list: A list of ASE Atoms objects representing the trajectory.
+    """
     list_atoms = []
     for ii, conf in enumerate(traj_array):
         data = json.loads(conf['atoms']['atoms_json'])
@@ -264,30 +305,55 @@ def traj_arr_to_atoms_list(traj_array):
 
 
 def log_transition_states(indices, master_dict):
-        dir_name = "all_transition_states"
-        os.makedirs(dir_name, exist_ok=True)
-        os.chdir(dir_name)
-        for ts_type in [0, 1]:
-            os.makedirs(str(ts_type), exist_ok=True)
-            os.chdir(str(ts_type))
-            for index in indices:
-                try:
-                    conf = master_dict[ts_type]['TS'][index]['trajectory'][-1]
-                    data = json.loads(conf['atoms']['atoms_json'])
-                    numbers = np.array(data["numbers"]["__ndarray__"][2])
-                    positions = np.array(data["positions"]["__ndarray__"][2])
-                    atoms = Atoms(
-                        numbers=numbers,
-                        positions=np.reshape(positions, (len(numbers), 3))
-                    )
-                    ase.io.write(f'ts{ts_type}_{index:03}.xyz', atoms)
-                except Exception as e:
-                    print("TS: an error occurred while accessing transition state for index:", e)
-            os.chdir('../')
+    """
+    Log transition state information.
+
+    This function logs transition state information from the master_dict into
+    XYZ format files.
+
+    Parameters:
+    indices (list): A list of indices corresponding to the transition states to log.
+    master_dict (dict): A dictionary containing the transition state data.
+
+    Returns:
+    None
+    """
+    dir_name = "all_transition_states"
+    os.makedirs(dir_name, exist_ok=True)
+    os.chdir(dir_name)
+    for ts_type in [0, 1]:
+        os.makedirs(str(ts_type), exist_ok=True)
+        os.chdir(str(ts_type))
+        for index in indices:
+            try:
+                conf = master_dict[ts_type]['TS'][index]['trajectory'][-1]
+                data = json.loads(conf['atoms']['atoms_json'])
+                numbers = np.array(data["numbers"]["__ndarray__"][2])
+                positions = np.array(data["positions"]["__ndarray__"][2])
+                atoms = Atoms(
+                    numbers=numbers,
+                    positions=np.reshape(positions, (len(numbers), 3))
+                )
+                ase.io.write(f'ts{ts_type}_{index:03}.xyz', atoms)
+            except Exception as e:
+                print("TS: an error occurred while accessing transition state for index:", e)
         os.chdir('../')
+    os.chdir('../')
 
 
 def log_trajectories(indices, master_dict):
+    """
+    Log trajectory information.
+
+    This function logs trajectory information from the master_dict into XYZ format files.
+
+    Parameters:
+    indices (list): A list of indices corresponding to the trajectories to log.
+    master_dict (dict): A dictionary containing the trajectory data.
+
+    Returns:
+    None
+    """
     dir_name = "all_trajectories"
     os.makedirs(dir_name, exist_ok=True)
     os.chdir(dir_name)
@@ -321,7 +387,22 @@ def log_trajectories(indices, master_dict):
 
 
 def plot_correlations(general_data,
-                      columns_to_compare=None):
+                      columns_to_compare=None,
+                      row_labels=None):
+    """
+    Plot a heatmap of the correlation matrix.
+
+    This function calculates the correlation matrix for the specified columns in the
+    given general_data array and plots a heatmap.
+
+    Parameters:
+    general_data (numpy.ndarray): A 2D array containing the data for which to calculate correlations.
+    columns_to_compare (list or None, optional): A list of column indices to include in correlation calculation.
+        If None, default columns [1, 2, 3, 6, 9, 12, 16] will be used.
+
+    Returns:
+    None
+    """
     # Calculate correlation matrix
     if columns_to_compare is None:
         columns_to_compare = [1, 2, 3, 6, 9, 12, 16]
@@ -329,15 +410,16 @@ def plot_correlations(general_data,
                                      rowvar=False)
     # print('correlation_matrix:\n', correlation_matrix)
 
-    row_labels = [
-        'Isomorphism 0',
-        'Isomorphism 1',
-        'Same reaction/TS',
-        'Imag-freq diff.',
-        'Delta G forward',
-        'Delta G reverse',
-        'Energy std. dev.'
-    ]
+    if row_labels is None:
+        row_labels = [
+            'Isomorphism 0',
+            'Isomorphism 1',
+            'Same reaction/TS',
+            'Imag-freq diff.',
+            'Delta G forward',
+            'Delta G reverse',
+            'Energy std. dev.'
+        ]
     sns.heatmap(correlation_matrix,
                 annot=True,
                 cmap='coolwarm')
@@ -358,60 +440,84 @@ def plot_correlations(general_data,
 
 
 def main():
-    lp_file = os.path.join(os.environ["HOME"], "fw_config/my_launchpad.yaml")
-    # tag = "sella_ts_prod_jun25_[10]"
-    # tag = "sella_ts_prod_jul2b_[10]"
-    tag = "sella_ts_prod_jul13d_[10]"
-    # tag = "sella_ts_prod_aug1_[10]"
-    # tag = "sella_ts_prod_aug1b_[10]"
+    # Configure the logging settings
+    logging.basicConfig(filename='log.txt', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-    # Modify the indices based on your requirements
-    indices = np.arange(265)
-    # indices = [24, 38, 71, 107, 112, 167, 185, 189, 218, 237, 240, 253, 256]
-    # indices = [107, 185]
+    try:
+        lp_file = os.path.join(os.environ["HOME"], "fw_config/my_launchpad.yaml")
+        # tag = "sella_ts_prod_jun25_[10]"
+        # tag = "sella_ts_prod_jul2b_[10]"
+        tag = "sella_ts_prod_jul13d_[10]"
+        # tag = "sella_ts_prod_aug1_[10]"
+        # tag = "sella_ts_prod_aug1b_[10]"
+        # tag = "sella_ts_prod_oct4_[10]"
 
-    # Modify the threshold values based on your requirements
-    imag_freq_threshold = 10
-    delta_g_threshold = 0.0285
+        # Modify the indices based on your requirements
+        indices = np.arange(265)
+        # indices = [24, 38, 71, 107, 112, 167, 185, 189, 218, 237, 240, 253, 256]
+        # indices = [107, 185]
 
-    master_dict = retrieve_data(lp_file, tag, indices)
+        # Modify the threshold values based on your requirements
+        imag_freq_threshold = 10
+        delta_g_threshold = 0.0285
 
-    # log_trajectories(indices, master_dict)
-    # log_transition_states(indices, master_dict)
+        master_dict = retrieve_data(lp_file, tag, indices)
 
-    good_indices = check_present_indices(master_dict, indices)
+        # log_trajectories(indices, master_dict)
+        # log_transition_states(indices, master_dict)
 
-    set_no_rxn0, set_no_rxn1, iter_comparison1, iter_comparison2, set_same_rxn, set_diff_rxn, set_imag_freqs,\
-        set_delta_g_f, set_delta_g_r, general_data = perform_comparisons(master_dict,
-                                                                         good_indices,
-                                                                         imag_freq_threshold,
-                                                                         delta_g_threshold)
+        good_indices = check_present_indices(master_dict, indices)
 
-    # plot_correlations(general_data)
+        set_no_rxn0, set_no_rxn1, iter_comparison1, iter_comparison2, set_same_rxn, set_diff_rxn, set_imag_freqs,\
+            set_delta_g_f, set_delta_g_r, general_data = perform_comparisons(master_dict,
+                                                                             good_indices,
+                                                                             imag_freq_threshold,
+                                                                             delta_g_threshold)
 
-    print(f"\nset no reaction 0: {len(set_no_rxn0)}: {set_no_rxn0}")
-    # for item in set_failed0:
-    #     print(f"({item[0]:>3d}, {item[1]:>8.2f}, {item[2]:>6.2f}, {item[3]:>6.2f})")
-    print(f"set no reaction 1: {len(set_no_rxn1)}: {set_no_rxn1}")
-    # for item in set_failed1:
-    #     print(f"({item[0]:>3d}, {item[1]:>8.2f}, {item[2]:>6.2f}, {item[3]:>6.2f})")
-    print(f"set both 1 and 0 did not have a reaction: {len(set_no_rxn0.intersection(set_no_rxn1))}:"
-          f" {set_no_rxn0.intersection(set_no_rxn1)}")
+        logging.info(f"Number of reactions with no reaction in 0: {len(set_no_rxn0)}")
+        logging.info(f"Number of reactions with no reaction in 1: {len(set_no_rxn1)}")
+        logging.info(f"Number of reactions with no reaction in both 0 and 1: {len(set_no_rxn0.intersection(set_no_rxn1))}")
 
-    print(f"\nset_same_rxn: {len(set_same_rxn)}: {set_same_rxn}")
-    print(f"set_diff_rxn: {len(set_diff_rxn)}: {set_diff_rxn}")
+        logging.info(f"Number of reactions with the same reaction in both 0 and 1: {len(set_same_rxn)}")
+        logging.info(f"Number of reactions with different reaction in both 0 and 1: {len(set_diff_rxn)}")
 
-    print(f"\nDifferent Imaginary Frequency Numbers: {len(set_imag_freqs)}: {set_imag_freqs}")
-    print(f"Different DeltaG (forward) Numbers: {len(set_delta_g_f)}: {set_delta_g_f}")
-    print(f"Different DeltaG (reverse) Numbers: {len(set_delta_g_r)}: {set_delta_g_r}")
+        logging.info(f"Number of different imaginary frequency numbers: {len(set_imag_freqs)}")
+        logging.info(f"Number of different DeltaG (forward) numbers: {len(set_delta_g_f)}")
+        logging.info(f"Number of different DeltaG (reverse) numbers: {len(set_delta_g_r)}")
 
-    print(f"\nIteration Comparison1: {iter_comparison1}")
-    print(f"Iteration Comparison2: {iter_comparison2}")
+        logging.info(f"Iteration Comparison1: {iter_comparison1}")
+        logging.info(f"Iteration Comparison2: {iter_comparison2}")
+        np.savetxt('general_data.txt', general_data, fmt='%.5f')
+        logging.info("General data saved to 'general_data.txt'")
+        '''
+        # plot_correlations(general_data)
 
-    # np.set_printoptions(threshold=np.inf, precision=2, suppress=True, linewidth=np.inf)
-    # print(f"\ngeneral_data:\n", general_data)
-    np.savetxt('general_data.txt', general_data, fmt='%.5f')
-    return general_data
+        print(f"\nset no reaction 0: {len(set_no_rxn0)}: {set_no_rxn0}")
+        # for item in set_failed0:
+        #     print(f"({item[0]:>3d}, {item[1]:>8.2f}, {item[2]:>6.2f}, {item[3]:>6.2f})")
+        print(f"set no reaction 1: {len(set_no_rxn1)}: {set_no_rxn1}")
+        # for item in set_failed1:
+        #     print(f"({item[0]:>3d}, {item[1]:>8.2f}, {item[2]:>6.2f}, {item[3]:>6.2f})")
+        print(f"set both 1 and 0 did not have a reaction: {len(set_no_rxn0.intersection(set_no_rxn1))}:"
+              f" {set_no_rxn0.intersection(set_no_rxn1)}")
+
+        print(f"\nset_same_rxn: {len(set_same_rxn)}: {set_same_rxn}")
+        print(f"set_diff_rxn: {len(set_diff_rxn)}: {set_diff_rxn}")
+
+        print(f"\nDifferent Imaginary Frequency Numbers: {len(set_imag_freqs)}: {set_imag_freqs}")
+        print(f"Different DeltaG (forward) Numbers: {len(set_delta_g_f)}: {set_delta_g_f}")
+        print(f"Different DeltaG (reverse) Numbers: {len(set_delta_g_r)}: {set_delta_g_r}")
+
+        print(f"\nIteration Comparison1: {iter_comparison1}")
+        print(f"Iteration Comparison2: {iter_comparison2}")
+
+        # np.set_printoptions(threshold=np.inf, precision=2, suppress=True, linewidth=np.inf)
+        # print(f"\ngeneral_data:\n", general_data)
+        '''
+        return general_data
+    except Exception as e:
+        logging.error(f"An error occured: {e}")
+        raise
 
 
 def sams_calcs():
@@ -739,14 +845,14 @@ def nn_diff_property_plot(x):
 
 
 if __name__ == "__main__":
-    # general_data = main()
-    # print('general_data:\n', general_data)
-    # general_data = np.loadtxt('general_data.txt')
+    general_data = main()
+    print('general_data:\n', general_data)
+    general_data = np.loadtxt('general_data.txt')
 
     # nn_no_rxn_plot(general_data)
     # nn_rxn_plot(general_data) ERROR IN THIS FUNCTION
     # nn_diff_property_plot(general_data)
 
-    data = sams_calcs()
+    # data = sams_calcs()
 
     # comparison_nn_dft(general_data, data)

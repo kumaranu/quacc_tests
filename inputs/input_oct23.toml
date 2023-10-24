@@ -1,0 +1,8 @@
+[config]
+indices_range = [0, 50]
+launchpad_file = "/home/kumaranu/fw_config/launchpad.yaml"
+class_tag = "sella_ts_prod_oct23_[10]"
+job_type = "TS"
+ts_type = [0, 1]
+print_level = 1
+log_dir = "logs"

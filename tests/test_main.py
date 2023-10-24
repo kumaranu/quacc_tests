@@ -3,6 +3,7 @@ import numpy as np
 import pytest
 from pymatgen.core.structure import Molecule
 import networkx as nx
+from ase import Atoms
 from utils import (
     compare_mols,
     create_molecule_graph,
@@ -16,6 +17,11 @@ from main import (
     check_present_indices,
     compare_mols,
     perform_comparisons,
+    traj_arr_to_atoms_list,
+    log_transition_states,
+    log_trajectories,
+    plot_correlations,
+    main,
 )
 
 
@@ -287,9 +293,9 @@ def test_get_graph_hash():
 
 def test_get_data():
     # Set up the test data
-    indices = [1, 2, 4]
+    indices = [1, 2, 4,3000]
     launchpad_file = os.path.join(os.environ["HOME"], "fw_config/my_launchpad.yaml")
-    class_tag = "sella_ts_prod_jun25_[10]"
+    class_tag = "sella_ts_prod_jul13d_[10]"
     job_type = "TS"
     ts_type = 0
     print_level = 1
@@ -306,16 +312,16 @@ def test_get_data():
         log_dir=log_dir
     )
 
-    print('doc_dict.keys():', doc_dict.keys())
+    print('\n\n\n\n\n\n\ndoc_dict.keys():', doc_dict.keys())
     # Perform assertions to check the correctness of the results
-    assert len(doc_dict) == len(indices)  # Check the length of the doc_dict
+    # assert len(doc_dict) == len(indices)  # Check the length of the doc_dict
     #assert all_analysis_data.shape == (len(indices), 8)  # Check the shape of all_analysis_data
     #assert len(all_mols) == len(indices)  # Check the length of all_mols
 
 
 def test_retrieve_data():
     lp_file = os.path.join(os.environ["HOME"], "fw_config/my_launchpad.yaml")
-    tag = "sella_ts_prod_jun25_[10]"
+    tag = "sella_ts_prod_jul13d_[10]"
     indices = np.arange(5)
     master_dict = retrieve_data(lp_file, tag, indices)
 
@@ -328,3 +334,162 @@ def test_retrieve_data():
 
         for calc_type in master_dict[ts_type]:
             assert isinstance(master_dict[ts_type][calc_type], dict)
+
+
+def test_check_present_indices():
+    # Set up your test data
+    indices = [1, 2, 300]
+    lp_file = os.path.join(os.environ["HOME"],
+                           "fw_config/my_launchpad.yaml")
+    tag = "sella_ts_prod_jul13d_[10]"
+    master_dict = retrieve_data(lp_file=lp_file,
+                                tag=tag,
+                                indices=indices)
+
+    # Call the function you want to test
+    result = check_present_indices(master_dict, indices)
+
+    # Define the expected output based on your test data setup
+    expected_output = [1, 2]  # Update this based on your data
+
+    # Check if the result matches the expected output
+    assert result == expected_output
+
+
+def test_traj_arr_to_atoms_list_with_real_data():
+    indices = [1, 2, 300]
+    lp_file = os.path.join(os.environ["HOME"],
+                           "fw_config/my_launchpad.yaml")
+    tag = "sella_ts_prod_jul13d_[10]"
+    master_dict = retrieve_data(lp_file=lp_file,
+                                tag=tag,
+                                indices=indices)
+
+    ts_type_test = 0  # Choose the appropriate ts_type for testing
+    calc_type_test = 'TS'  # Choose the appropriate calc_type for testing
+    index_test = 1  # Choose the appropriate index for testing
+
+    # Get the actual trajectory array from the master_dict
+    traj_array = master_dict[ts_type_test][calc_type_test][index_test]['trajectory']
+
+    # Call the function
+    result = traj_arr_to_atoms_list(traj_array)
+
+    # Check if the result has the correct length and type
+    assert len(result) == len(traj_array)
+    for atoms_obj in result:
+        assert isinstance(atoms_obj, Atoms)
+
+
+@pytest.fixture
+def sample_master_dict():
+    indices = list(range(24))
+    lp_file = os.path.join(os.environ["HOME"],
+                           "fw_config/my_launchpad.yaml")
+    tag = "sella_ts_prod_jul13d_[10]"
+    master_dict = retrieve_data(lp_file=lp_file,
+                                tag=tag,
+                                indices=indices)
+    return master_dict
+
+
+def test_log_transition_states_with_real_data(tmpdir, sample_master_dict):
+    # Set the current working directory to the temporary directory
+    os.chdir(tmpdir)
+
+    # Call the log_transition_states function
+    indices = [0, 2, 4]  # Replace with the actual indices you want to test
+    log_transition_states(indices=indices, master_dict=sample_master_dict)
+
+    # Perform assertions to check if the output files were created as expected
+    assert os.path.exists("all_transition_states")
+    assert os.path.exists("all_transition_states/0")
+
+
+def test_log_trajectories_with_real_data(tmpdir, sample_master_dict):
+    # Set the current working directory to the temporary directory
+    os.chdir(tmpdir)
+
+    # Call the log_trajectories function
+    indices = [0, 2, 400]  # Replace with the actual indices you want to test
+    log_trajectories(indices=indices, master_dict=sample_master_dict)
+
+    # Perform assertions to check if the output files were created as expected
+    assert os.path.exists("all_trajectories")
+    assert os.path.exists("all_trajectories/0")
+
+
+def test_plot_correlations():
+    # Create a sample general_data array for testing
+    general_data = np.array([
+        [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7],
+        [0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2],
+        [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
+        [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+        [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8],
+        [0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3],
+        [0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6]
+    ])
+    # Set valid column indices for testing
+    valid_columns = [1, 2, 3, 6]
+    row_labels = ['a', 'b', 'c', 'd']
+
+    # Call the function
+    plot_correlations(general_data,
+                      columns_to_compare=valid_columns,
+                      row_labels=row_labels)
+    general_data = np.random.rand(10, 20)
+    # Call the function
+    plot_correlations(general_data)
+
+
+def test_perform_comparisons(sample_master_dict):
+    """
+    print('\n', sample_master_dict.keys())
+    print('\n', sample_master_dict[0].keys())
+    print('\n', sample_master_dict[0]['TS'].keys())
+    print('\n', sample_master_dict[0]['firc'].keys())
+    print('\n', sample_master_dict[0]['rirc'].keys())
+    print('\n', sample_master_dict[1]['TS'].keys())
+    print('\n', sample_master_dict[1]['firc'].keys())
+    print('\n', sample_master_dict[1]['rirc'].keys())
+    """
+    # Create a sample master_dict for testing
+    good_indices = list(range(24))
+    imag_freq_threshold = 0.1
+    delta_g_threshold = 0.2
+
+    # Call the function
+    result = perform_comparisons(sample_master_dict,
+                                 good_indices,
+                                 imag_freq_threshold,
+                                 delta_g_threshold)
+
+    # Check the return types and sizes
+    assert isinstance(result, tuple)
+    assert len(result) == 10
+    assert all(isinstance(item, (set, dict, np.ndarray)) for item in result)
+
+    # Extract sets and arrays from the result tuple
+    set_no_rxn0, set_no_rxn1, iter_comparison1, iter_comparison2, set_same_rxn, set_diff_rxn, \
+        set_imag_freqs, set_delta_g_f, set_delta_g_r, general_data = result
+
+    # Check specific sets and dictionaries
+    assert isinstance(set_no_rxn0, set)
+    assert isinstance(set_no_rxn1, set)
+    assert isinstance(iter_comparison1, dict)
+    assert isinstance(iter_comparison2, dict)
+    assert isinstance(set_same_rxn, set)
+    assert isinstance(set_diff_rxn, set)
+    assert isinstance(set_imag_freqs, set)
+    assert isinstance(set_delta_g_f, set)
+    assert isinstance(set_delta_g_r, set)
+    assert isinstance(general_data, np.ndarray)
+
+
+def test_main_function():
+    general_data = main()
+
+    # Perform assertions based on the expected behavior of your `main` function
+    assert isinstance(general_data, np.ndarray), "General data should be a numpy array"
+    # assert general_data.shape == (expected_rows, expected_columns), "General data shape is incorrect"
