@@ -12,6 +12,7 @@ from utils import compare_mols, get_data
 from typing import List, Dict, Set
 from visuals import process_trajectories
 from utils import get_data_wrapper
+from typing import Dict, List, Any
 
 
 def retrieve_data(lp_file: str, tag: str, indices: List[int]) -> Dict[int, Dict[str, Dict[str, Any]]]:
@@ -681,8 +682,34 @@ def sams_calcs():
 
     return data
 
+def comparison_nn_dft(general_data: np.ndarray, data: Dict[str, Dict[str, float]]) -> None:
+    """
+    Compare data from a general dataset (NewtonNet) and a specific dataset (DFT).
 
-def comparison_nn_dft(general_data, data):
+    Parameters
+    ----------
+    general_data : numpy.ndarray
+        The general dataset (NewtonNet) organized as a NumPy array.
+    data : Dict[str, Dict[str, float]]
+        The specific dataset (DFT) organized as a dictionary.
+
+    Returns
+    -------
+    None
+        Prints information about the comparison results.
+
+    Notes
+    -----
+    This function compares data from a general dataset (NewtonNet) and a specific dataset (DFT).
+    It counts cases where Delta G forward is equal or within a specific range of Delta G reverse.
+    It also prints information about cases where the datasets have different results for Delta G forward.
+
+    Examples
+    --------
+    >>> general_data = np.array([[...], [...], ...])
+    >>> data = {'element1': {'property1': value1, 'property2': value2, ...}, ...}
+    >>> comparison_nn_dft(general_data, data)
+    """
     count = 0
     count2 = 0
     for element in data:
