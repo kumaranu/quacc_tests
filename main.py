@@ -14,7 +14,37 @@ from visuals import process_trajectories
 from utils import get_data_wrapper
 
 
-def retrieve_data(lp_file, tag, indices):
+def retrieve_data(lp_file: str, tag: str, indices: List[int]) -> Dict[int, Dict[str, Dict[str, Any]]]:
+    """
+    Retrieve data from a log file for specified indices and classification tag.
+
+    Parameters
+    ----------
+    lp_file : str
+        The path to the log file.
+    tag : str
+        The classification tag for filtering data.
+    indices : List[int]
+        The list of indices for which data needs to be retrieved.
+
+    Returns
+    -------
+    master_dict : Dict[int, Dict[str, Dict[str, Any]]]
+        A nested dictionary containing the retrieved data organized by type and job.
+
+    Notes
+    -----
+    This function retrieves data from the log file for specified indices, classification tag, and job types.
+    It returns a nested dictionary where the outer key represents the TS type (0 or 1), the middle key
+    represents the job type ('TS', 'firc', 'rirc'), and the inner dictionary contains the actual data.
+
+    Examples
+    --------
+    >>> lp_file = 'path/to/log_file.log'
+    >>> tag = 'some_classification'
+    >>> indices = [1, 2, 3]
+    >>> data = retrieve_data(lp_file, tag, indices)
+    """
     dd_ts = {}
     dd_firc = {}
     dd_rirc = {}
@@ -29,7 +59,34 @@ def retrieve_data(lp_file, tag, indices):
     return master_dict
 
 
-def check_present_indices(master_dict, indices):
+def check_present_indices(master_dict: Dict[int, Dict[str, Dict[str, Any]]], indices: List[int]) -> List[int]:
+    """
+    Check the presence of indices in the master dictionary and filter the valid ones.
+
+    Parameters
+    ----------
+    master_dict : Dict[int, Dict[str, Dict[str, Any]]]
+        The master dictionary containing the data organized by type and job.
+    indices : List[int]
+        The list of indices to be checked.
+
+    Returns
+    -------
+    good_indices : List[int]
+        The list of indices that are present for all TS types and calculation types.
+
+    Notes
+    -----
+    This function checks the presence of indices in the master dictionary and filters the valid ones.
+    It prints information about failed calculations for each TS type and both types.
+
+    Examples
+    --------
+    >>> master_dict = {0: {"TS": {...}, "firc": {...}, "rirc": {...}},
+    ...                1: {"TS": {...}, "firc": {...}, "rirc": {...}}}
+    >>> indices = [1, 2, 3]
+    >>> valid_indices = check_present_indices(master_dict, indices)
+    """
     set_err_0, set_err_1, set_err_both = set(), set(), set()
 
     good_indices = []
