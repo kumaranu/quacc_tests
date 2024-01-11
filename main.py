@@ -811,7 +811,16 @@ def graph_compare(general_data, data, good_indices):
 '''
 
 
-def nn_rxn_plot(x):
+def nn_rxn_plot(x: np.ndarray) -> None:
+    """
+    Generate a bar chart to visualize the distribution of chemical reactions based on input data.
+
+    Args:
+    x (np.ndarray): Input data array with specific columns.
+
+    Returns:
+    None
+    """
     #placeholder
     # Extract the columns
     column1 = x[:, 1]
