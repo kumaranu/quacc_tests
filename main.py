@@ -812,6 +812,7 @@ def graph_compare(general_data, data, good_indices):
 
 
 def nn_rxn_plot(x):
+    #placeholder
     # Extract the columns
     column1 = x[:, 1]
     column2 = x[:, 2]
