@@ -125,6 +125,28 @@ def perform_comparisons(
 ) -> tuple[
     set[int], set[int], dict[int, int], dict[int, int], set[int], set[int], set[int], set[int], set[int], ndarray[
         float]]:
+    """
+    Perform comparisons between two sets of reactions.
+
+    Parameters:
+    - master_dict (Dict[int, Dict[str, List[Dict[str, any]]]]): A dictionary containing reaction data.
+    - good_indices (List[int]): List of indices for reactions to be considered.
+    - imag_freq_threshold (float): Threshold for difference in imaginary frequencies to identify reactions.
+    - delta_g_threshold (float): Threshold for difference in Gibbs free energies to identify reactions.
+
+    Returns:
+    Tuple[set[int], set[int], dict[int, int], dict[int, int], set[int], set[int], set[int], set[int], set[int], ndarray[float]]:
+        - set_no_rxn0 (set[int]): Set of indices where reactant and product have same bonding for type 0.
+        - set_no_rxn1 (set[int]): Set of indices where reactant and product have same bonding for type 1.
+        - iter_comparison1 (dict[int, int]): Dictionary containing iteration counts for type 0 and type 1 reactions.
+        - iter_comparison2 (dict[int, int]): Dictionary containing iteration counts for type 0 and type 1 reactions.
+        - set_same_rxn (set[int]): Set of indices where reactants and products are the same between type 0 and type 1.
+        - set_diff_rxn (set[int]): Set of indices where reactants and products are different between type 0 and type 1.
+        - set_imag_freqs (set[int]): Set of indices where imaginary frequencies differ more than the threshold.
+        - set_delta_g_f (set[int]): Set of indices where Gibbs free energy differences in forward direction differ more than the threshold.
+        - set_delta_g_r (set[int]): Set of indices where Gibbs free energy differences in reverse direction differ more than the threshold.
+        - general_data (ndarray[float]): Array containing various reaction data for further analysis.
+    """
     iter_comparison1: Dict[int, int] = {0: 0, 1: 0}
     iter_comparison2: Dict[int, int] = {0: 0, 1: 0}
     set_same_rxn: Set[int] = set()
