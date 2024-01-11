@@ -519,7 +519,13 @@ def plot_correlations(general_data,
     plt.show()
 
 
-def main():
+def main() -> ndarray[float]:
+    """
+    Main function for performing reactions comparison and logging results.
+
+    Returns:
+    ndarray[float]: Array containing various reaction data for further analysis.
+    """
     # Configure the logging settings
     logging.basicConfig(filename='log.txt', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
