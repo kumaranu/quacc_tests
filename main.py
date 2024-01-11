@@ -871,7 +871,26 @@ def nn_rxn_plot(x: np.ndarray) -> None:
     # plt.savefig('rxn.png', dpi=300)
 
 
-def nn_no_rxn_plot(x):
+def nn_no_rxn_plot(x: np.ndarray) -> None:
+    """
+    Generate a bar chart depicting the number of tests with no chemical reactions for different cases.
+
+    Parameters:
+    - x (np.ndarray): 2D array containing information about chemical reactions.
+                      The array should have shape (n_samples, n_features), where:
+                      - x[:, 1]: Column representing 'Using ML-Hessian'
+                      - x[:, 2]: Column representing 'Without Hessian'
+
+    Returns:
+    None
+
+    The function creates a bar chart with three bars:
+    - 'Using ML-Hessian': Number of tests with chemical reactions using ML-Hessian
+    - 'Without Hessian': Number of tests with chemical reactions without using Hessian
+    - 'Both cases': Number of tests with chemical reactions in both cases
+
+    The bar chart is saved as 'no_rxn.png' with a resolution of 300 DPI.
+    """
     # Extract the columns
     column1 = x[:, 1]
     column2 = x[:, 2]
@@ -919,7 +938,16 @@ def nn_no_rxn_plot(x):
     plt.savefig('no_rxn.png', dpi=300)
 
 
-def nn_diff_property_plot(x):
+def nn_diff_property_plot(x: np.ndarray) -> None:
+    """
+    Generate a bar chart to visualize the difference in properties for with/without Hessian results based on input data.
+
+    Args:
+    x (np.ndarray): Input data array with specific columns.
+
+    Returns:
+    None
+    """
     # Extract the columns
     column1 = x[:, 1]
     column2 = x[:, 2]
