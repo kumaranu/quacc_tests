@@ -606,7 +606,13 @@ def main() -> ndarray[float]:
         raise
 
 
-def sams_calcs():
+def sams_calcs() -> Dict[str, Dict[str, Union[Dict[str, Any], float]]]:
+    """
+    Perform calculations based on Sam's data and return a dictionary containing the results.
+
+    Returns:
+    Dict[str, Dict[str, Union[Dict[str, Any], float]]]: Dictionary containing calculated results.
+    """
     qchem_dict = {f'{i:03}':{} for i in range(265)}
     # Sam's calcs
     data = {}
