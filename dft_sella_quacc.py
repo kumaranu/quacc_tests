@@ -13,6 +13,7 @@ calculations to a LaunchPad for QChem using the FireWorks workflow management to
 import toml
 import glob
 import jobflow as jf
+from ase import Atoms
 from ase.io import read
 from fireworks import LaunchPad
 from quacc.recipes.qchem.ts import ts_job

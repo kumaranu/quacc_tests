@@ -4,5 +4,4 @@ tag = "dec18"
 run = true
 
 [indices]
-xyz_files_dir = "/global/home/users/kumaranu/Documents/sella_si/singlets/molecules_fromscratch_noised_renamed_b"
-
+xyz_files_dir = "inputs/xyzs"

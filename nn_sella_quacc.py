@@ -6,6 +6,7 @@ Author: Anup Kumar
 import toml
 import glob
 import jobflow as jf
+from ase import Atoms
 from ase.io import read
 from fireworks import LaunchPad
 from jobflow.managers.fireworks import flow_to_workflow
