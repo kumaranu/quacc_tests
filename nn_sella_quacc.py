@@ -89,7 +89,7 @@ def add_to_launchpad(
 
 
 def main():
-    config = toml.load('inputs/config.toml')
+    config = toml.load('inputs/config43.toml')
     index_files = [index_file for index_file in glob.glob(config['indices']['xyz_files_dir'] + '/*')]
 
     LAUNCHPAD_FILE = config['general']['launchpad_file']
