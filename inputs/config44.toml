@@ -1,0 +1,8 @@
+[general]
+launchpad_file = "/global/home/users/kumaranu/fw_config/my_launchpad.yaml"
+tag = "dec18"
+run = true
+
+[indices]
+xyz_files_dir = "/global/home/users/kumaranu/Documents/sella_si/singlets/molecules_fromscratch_noised_renamed_b"
+
