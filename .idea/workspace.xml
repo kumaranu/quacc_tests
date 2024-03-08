@@ -5,9 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="05834ade-dccd-447a-b4a4-8f8fe121e578" name="Changes" comment="Added more analysis on Q-Chem results.">
-      <change afterPath="$PROJECT_DIR$/dft_sella_quacc.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nn_sella_quacc.py" beforeDir="false" afterPath="$PROJECT_DIR$/nn_sella_quacc.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -79,17 +77,17 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "WIP-paper1",
-    "last_opened_file_path": "/home/kumaranu/Documents/quacc_tests",
-    "settings.editor.selected.configurable": "Errors"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;WIP-paper1&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/kumaranu/Documents/quacc_tests&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;Errors&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="quacc_tests" />
@@ -133,7 +131,7 @@
       <workItem from="1692824155880" duration="7000" />
       <workItem from="1692827370417" duration="4106000" />
       <workItem from="1692918360128" duration="555000" />
-      <workItem from="1709854681175" duration="3051000" />
+      <workItem from="1709854681175" duration="4087000" />
     </task>
     <task id="LOCAL-00001" summary="Added graph comparison changes and also the first working version with negative frequencies.">
       <created>1687768872566</created>
