@@ -24,7 +24,7 @@ To run the scripts locally, simply execute the desired script, e.g.,
 ```bash
 python nn_sella_quacc.py
 
-#Note
+##Note
 For detailed information on setup and configuration,
 please refer to the corresponding paper authors.
 Feel free to reach out to them (including me) for assistance.

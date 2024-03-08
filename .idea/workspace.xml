@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="05834ade-dccd-447a-b4a4-8f8fe121e578" name="Changes" comment="Added more analysis on Q-Chem results.">
+    <list default="true" id="05834ade-dccd-447a-b4a4-8f8fe121e578" name="Changes" comment="Added the input files.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -131,7 +132,7 @@
       <workItem from="1692824155880" duration="7000" />
       <workItem from="1692827370417" duration="4106000" />
       <workItem from="1692918360128" duration="555000" />
-      <workItem from="1709854681175" duration="4087000" />
+      <workItem from="1709854681175" duration="4763000" />
     </task>
     <task id="LOCAL-00001" summary="Added graph comparison changes and also the first working version with negative frequencies.">
       <created>1687768872566</created>
@@ -362,7 +363,15 @@
       <option name="project" value="LOCAL" />
       <updated>1691031107845</updated>
     </task>
-    <option name="localTasksCounter" value="33" />
+    <task id="LOCAL-00033" summary="Added the input files.">
+      <option name="closed" value="true" />
+      <created>1709859045715</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1709859045715</updated>
+    </task>
+    <option name="localTasksCounter" value="34" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -377,7 +386,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Added log directory to for the data files downloaded from the database." />
     <MESSAGE value="Removed data files" />
     <MESSAGE value="Added some type hints in the tests" />
     <MESSAGE value="Adding molecules manually for tests." />
@@ -402,7 +410,8 @@
     <MESSAGE value="Updated the analysis for Sam's results." />
     <MESSAGE value="Added more analysis on Q-Chem results. They don't match well yet." />
     <MESSAGE value="Added more analysis on Q-Chem results." />
-    <option name="LAST_COMMIT_MESSAGE" value="Added more analysis on Q-Chem results." />
+    <MESSAGE value="Added the input files." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added the input files." />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/quacc_tests$.coverage" NAME=" Coverage Results" MODIFIED="1687989203361" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
