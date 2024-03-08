@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="05834ade-dccd-447a-b4a4-8f8fe121e578" name="Changes" comment="Added more analysis on Q-Chem results." />
+    <list default="true" id="05834ade-dccd-447a-b4a4-8f8fe121e578" name="Changes" comment="Added more analysis on Q-Chem results.">
+      <change afterPath="$PROJECT_DIR$/nn_sella_quacc.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -81,7 +84,7 @@
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "Rebasing main",
+    "git-widget-placeholder": "WIP-paper1",
     "last_opened_file_path": "/home/kumaranu/Documents/quacc_tests",
     "settings.editor.selected.configurable": "Errors"
   }
@@ -129,6 +132,7 @@
       <workItem from="1692824155880" duration="7000" />
       <workItem from="1692827370417" duration="4106000" />
       <workItem from="1692918360128" duration="555000" />
+      <workItem from="1709854681175" duration="2016000" />
     </task>
     <task id="LOCAL-00001" summary="Added graph comparison changes and also the first working version with negative frequencies.">
       <created>1687768872566</created>
