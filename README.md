@@ -24,7 +24,20 @@ To run the scripts locally, simply execute the desired script, e.g.,
 ```bash
 python nn_sella_quacc.py
 
-##Note
-For detailed information on setup and configuration,
-please refer to the corresponding paper authors.
-Feel free to reach out to them (including me) for assistance.
+## Note
+
+For detailed information on setup and configuration, please refer to the following:
+
+1. **Sella Package:**
+   - [GitHub Repository](https://github.com/zadorlab/sella)
+   - [Documentation](https://github.com/zadorlab/sella/wiki)
+
+2. **NewtonNet:**
+   - [GitHub Repository](https://github.com/THGLab/NewtonNet)
+
+3. **QuAcc Recipes for NewtonNet and QChem:**
+   - [GitHub Repository](https://github.com/Quantum-Accelerators/quacc/blob/main/src/quacc/recipes/newtonnet/ts.py)
+   - [Documentation](https://quantum-accelerators.github.io/quacc/reference/quacc/recipes/newtonnet/ts.html)
+
+4. **Corresponding Paper Authors:**
+   - Feel free to reach out to them (including me) for assistance.
