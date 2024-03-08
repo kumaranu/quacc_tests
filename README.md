@@ -23,6 +23,7 @@ To run the scripts locally, simply execute the desired script, e.g.,
 
 ```bash
 python nn_sella_quacc.py
+```
 
 ## Note
 

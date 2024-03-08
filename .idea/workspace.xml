@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="05834ade-dccd-447a-b4a4-8f8fe121e578" name="Changes" comment="Added the input files.">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-    </list>
+    <list default="true" id="05834ade-dccd-447a-b4a4-8f8fe121e578" name="Changes" comment="Added the input files." />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -132,7 +129,7 @@
       <workItem from="1692824155880" duration="7000" />
       <workItem from="1692827370417" duration="4106000" />
       <workItem from="1692918360128" duration="555000" />
-      <workItem from="1709854681175" duration="6050000" />
+      <workItem from="1709854681175" duration="6388000" />
     </task>
     <task id="LOCAL-00001" summary="Added graph comparison changes and also the first working version with negative frequencies.">
       <created>1687768872566</created>
