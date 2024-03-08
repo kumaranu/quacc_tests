@@ -1,3 +1,15 @@
+
+"""
+Original Author: Samuel Blau
+Modifier: Anup Kumar
+
+Module for adding calculations to a FireWorks LaunchPad.
+
+Includes functions to add transition state and IRC (Intrinsic Reaction Coordinate)
+calculations to a LaunchPad for QChem using the FireWorks workflow management tool.
+
+"""
+
 import toml
 import glob
 import jobflow as jf
@@ -10,13 +22,27 @@ from jobflow.managers.fireworks import flow_to_workflow
 
 
 def add_to_launchpad(
-        index,
-        atoms,
-        tag,
-        lpad,
-        run_job_locally=False,
-        RUN=False,
-):
+        index: str,
+        atoms: Atoms,
+        tag: str,
+        lpad: LaunchPad,
+        run_job_locally: bool = False,
+        RUN: bool = False,
+) -> None:
+    """
+    Add QChem calculations to a LaunchPad.
+
+    Parameters:
+        index (str): Identifier for the calculation.
+        atoms (Atoms): ASE Atoms object representing the molecular structure.
+        tag (str): Tag to classify the calculation.
+        lpad (LaunchPad): FireWorks LaunchPad object.
+        run_job_locally (bool, optional): Whether to run the job locally. Defaults to False.
+        RUN (bool, optional): Whether to add the workflow to the LaunchPad. Defaults to False.
+
+    Returns:
+        None
+    """
     job1 = ts_job(
                   atoms,
                   0,
@@ -95,7 +121,13 @@ def add_to_launchpad(
             lpad.add_wf(wf)
 
 
-def main():
+def main() -> None:
+    """
+    Main function to add QChem calculations to the LaunchPad.
+
+    Returns:
+        None
+    """
     config = toml.load('inputs/config44.toml')
 
     index_files = [index_file for index_file in glob.glob(config['indices']['xyz_files_dir'] + '/*')]

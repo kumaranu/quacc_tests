@@ -1,3 +1,8 @@
+
+"""
+Author: Anup Kumar
+"""
+
 import toml
 import glob
 import jobflow as jf
@@ -10,13 +15,24 @@ from atomate.common.powerups import add_tags
 
 
 def add_to_launchpad(
-        index,
-        atoms,
-        config,
-        lpad,
-        ts_type=0,
-        run_job_locally=True,
-):
+        index: str,
+        atoms: Atoms,
+        config: dict,
+        lpad: LaunchPad,
+        ts_type: int = 0,
+        run_job_locally: bool = True,
+) -> None:
+    """
+    Add transition state and IRC jobs to the FireWorks LaunchPad.
+
+    Args:
+        index (str): The index string.
+        atoms (Atoms): The ASE Atoms object.
+        config (dict): The configuration dictionary.
+        lpad (LaunchPad): The FireWorks LaunchPad.
+        ts_type (int, optional): The type of transition state. Defaults to 0.
+        run_job_locally (bool, optional): Whether to run the job locally or add to LaunchPad. Defaults to True.
+    """
     tag = config['general']['tag'].format(ts_type)
     
     if ts_type == 0:
@@ -89,6 +105,9 @@ def add_to_launchpad(
 
 
 def main():
+    """
+    Main function to add transition state and IRC jobs to the LaunchPad.
+    """
     config = toml.load('inputs/config43.toml')
     index_files = [index_file for index_file in glob.glob(config['indices']['xyz_files_dir'] + '/*')]
 
